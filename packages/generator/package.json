@@ -1,11 +1,6 @@
 {
   "name": "@prisma-enums/generator",
   "version": "0.2.0",
-  "keywords": [
-    "prisma",
-    "enums",
-    "generator"
-  ],
   "author": "Julius Marminge",
   "license": "MIT",
   "repository": {
@@ -23,7 +18,7 @@
     "README.md"
   ],
   "scripts": {
-    "start": "node dist/bin.js",
+    "start": "pnpm build && node dist/bin.js",
     "build": "tsup",
     "dev": "tsup --watch",
     "lint": "eslint . --ext .ts",
@@ -35,8 +30,5 @@
     "eslint": "^8.39.0",
     "tsup": "^6.7.0",
     "typescript": "^5.0.4"
-  },
-  "dependencies": {
-    "@prisma/generator-helper": "^4.14.0"
   }
 }
