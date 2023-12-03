@@ -82,7 +82,7 @@ function posthogPropertyTypeToGeneric(
 
 void fetchFromPosthog("event_definitions").then(async (data) => {
   const events: AnalyticsEvent[] = [];
-  for await (const event of data.results.slice(0, 2)) {
+  for await (const event of data.results.slice(0, 20)) {
     const definitions = await fetchFromPosthog("property_definitions", {
       queryParams: {
         event_names: [event.name],
