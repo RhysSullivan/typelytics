@@ -1,9 +1,9 @@
 import dayjs from "dayjs";
 import { PostHogEndpoints, PosthogPropertyType } from "./posthog/types";
 import { AnalyticsEvent, Property } from "./core/types";
-import { generateTypeScriptFile } from "./core/generate";
+import { generateTypeScriptFile } from "./posthog/generate";
 
-const POSTHOG_PERSONAL_API_KEY = process.env.POSTHOG_PERSONAL_API_KEY as string;
+const POSTHOG_API_KEY = process.env.POSTHOG_API_KEY as string;
 const project_id = process.env.POSTHOG_PROJECT_ID as string;
 
 function toParams(obj: Record<string, any>, explodeArrays = false): string {
@@ -53,7 +53,7 @@ function fetchFromPosthog<T extends keyof PostHogEndpoints>(
   return fetch(`${url}?${toParams(options.queryParams ?? {})}`, {
     method: "GET",
     headers: {
-      Authorization: `Bearer ${POSTHOG_PERSONAL_API_KEY}`,
+      Authorization: `Bearer ${POSTHOG_API_KEY}`,
     },
   }).then(async (response) => {
     if (!response.ok) {
