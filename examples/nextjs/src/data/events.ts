@@ -4730,7 +4730,6 @@ const events = {
     ],
   },
 } as const;
-import dayjs from "dayjs";
 
 export type PostHogAnalyticsEvents = typeof events;
 type AnalyticsEventName = keyof PostHogAnalyticsEvents;
@@ -4792,19 +4791,77 @@ export type PostHogSeries<T extends AnalyticsEventName> = {
 
 type Interval = "day" | "hour" | "week" | "month";
 
+export type LineChartType = "line";
+export type BarChartType = "bar";
+export type AreaChartType = "area";
+export type CumulativeLineChartType = "cumulative-line";
+export type NumberChartType = "number";
+export type PieChartType = "pie";
+export type BarTotalChartType = "bar-total";
+export type TableChartType = "table";
+export type WorldChartType = "world";
+
+export type ChartType =
+  | LineChartType
+  | BarChartType
+  | AreaChartType
+  | CumulativeLineChartType
+  | NumberChartType
+  | PieChartType
+  | BarTotalChartType
+  | TableChartType
+  | WorldChartType;
+
+type OmitStringUnion<T, U extends T> = T extends U ? never : T;
+
+export type TimeSeriesChartTypes =
+  | LineChartType
+  | BarChartType
+  | AreaChartType
+  | CumulativeLineChartType;
+
+export type TimeSeriesChart<T extends string> = {
+  type: TimeSeriesChartTypes;
+  data: ({
+    date: string;
+  } & Record<T, string>)[];
+};
+
+export type NumberChart<T extends string> = {
+  type: NumberChartType;
+  data: {
+    value: number;
+    label: T;
+  };
+};
+
+export type PieChart<T extends string> = {
+  type: PieChartType;
+  data: {
+    label: T;
+    value: number;
+  }[];
+};
+
+export type Chart<
+  Type extends ChartType,
+  T extends string,
+> = Type extends TimeSeriesChartTypes
+  ? TimeSeriesChart<T>
+  : Type extends "number"
+    ? NumberChart<T>
+    : Type extends "pie"
+      ? PieChart<T>
+      : never;
+
+type IsUnion<T, B = T> = T extends B ? ([B] extends [T] ? false : true) : never;
+
 type PostHogExecuteOptions<T extends AnalyticsEventName> = {
   groupBy: Interval;
   filterMatch?: "all" | "any";
-  type:
-    | "line"
-    | "bar"
-    | "area"
-    | "cumulative-line"
-    | "number"
-    | "pie"
-    | "bar-total"
-    | "table"
-    | "world";
+  type: IsUnion<T> extends true
+    ? OmitStringUnion<ChartType, "number">
+    : ChartType;
   breakdownBy?: PostHogAnalyticsEvents[T]["properties"][number]["name"];
   compareToPreviousPeriod?: boolean;
 };
@@ -4844,9 +4901,9 @@ function toParams(obj: Record<string, any>, explodeArrays = false): string {
   }
 
   function handleVal(val: any): string {
-    if (dayjs.isDayjs(val)) {
-      return encodeURIComponent(val.format("YYYY-MM-DD"));
-    }
+    // if (dayjs.isDayjs(val)) {
+    //   return encodeURIComponent(val.format("YYYY-MM-DD"));
+    // }
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     val = typeof val === "object" ? JSON.stringify(val) : val;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
@@ -4878,6 +4935,17 @@ function toParams(obj: Record<string, any>, explodeArrays = false): string {
     .join("&");
 }
 
+type PostHogDisplayType =
+  | "BoldNumber"
+  | "ActionsLineGraph"
+  | "ActionsTable"
+  | "ActionsPie"
+  | "ActionsBar"
+  | "ActionsBarValue"
+  | "ActionsLineGraphCumulative"
+  | "ActionsAreaGraph"
+  | "WorldMap";
+
 type PostHogInsightTrendParams = {
   insight: "TRENDS";
   properties?: {
@@ -4902,38 +4970,65 @@ type PostHogInsightTrendParams = {
   }[];
   formula?: string;
   interval: Interval;
-  display:
-    | "BoldNumber"
-    | "ActionsLineGraph"
-    | "ActionsTable"
-    | "ActionsPie"
-    | "ActionsBar";
+  display: PostHogDisplayType;
 };
 
+const chartTypeToPostHogType: Record<ChartType, PostHogDisplayType> = {
+  "bar-total": "ActionsBarValue",
+  "cumulative-line": "ActionsLineGraphCumulative",
+  line: "ActionsLineGraph",
+  bar: "ActionsBar",
+  area: "ActionsAreaGraph",
+  number: "BoldNumber",
+  pie: "ActionsPie",
+  table: "ActionsTable",
+  world: "WorldMap",
+};
+
+type AllLabelsOrNames<
+  T extends AnalyticsEventName,
+  S extends PostHogSeries<T> = PostHogSeries<T>,
+> = {
+  [K in keyof S as "label"]: S["label"] extends string ? S["label"] : S["name"];
+}["label"];
+
 class PostHogQuery<
-  K extends AnalyticsEventName,
-  T extends PostHogSeries<K>,
-  F extends PostHogFilterGroup<K>,
+  const EventNames extends AnalyticsEventName,
+  const Filters extends PostHogFilterGroup<EventNames>,
+  const Series extends PostHogSeries<EventNames>,
 > {
   constructor(
-    private readonly series: T[],
-    private readonly filterGroups: F[],
+    private readonly series: Series[],
+    private readonly filterGroups: Filters[],
     private readonly config: PostHogConfig,
   ) {}
 
-  addSeries<V extends AnalyticsEventName, U extends PostHogSeries<V>>(
-    event: U,
-  ): PostHogQuery<K | V, T | U, F> {
+  addSeries<
+    const NewEventName extends AnalyticsEventName,
+    const NewSeries extends NewEventName extends AllLabelsOrNames<
+      Series["name"],
+      Series
+    >
+      ? PostHogSeries<NewEventName> &
+          Required<Pick<PostHogSeries<NewEventName>, "label">>
+      : PostHogSeries<NewEventName>,
+  >(
+    event: NewSeries["label"] extends AllLabelsOrNames<Series["name"], Series>
+      ? {
+          label: "Your label is not unique, it cannot match any existing names or labels in this query.";
+        }
+      : NewSeries,
+  ): PostHogQuery<EventNames | NewEventName, Filters, Series | NewSeries> {
     return new PostHogQuery(
-      [...this.series, event],
+      [...this.series, event as NewSeries],
       this.filterGroups,
       this.config,
     );
   }
 
-  addFilterGroup<U extends PostHogFilterGroup<T["name"]>>(
-    filter: U,
-  ): PostHogQuery<K, T, F | U> {
+  addFilterGroup<const NewFilter extends PostHogFilterGroup<Series["name"]>>(
+    filter: NewFilter,
+  ): PostHogQuery<EventNames, Filters | NewFilter, Series> {
     return new PostHogQuery(
       this.series,
       [...this.filterGroups, filter],
@@ -4941,7 +5036,11 @@ class PostHogQuery<
     );
   }
 
-  async execute(options: PostHogExecuteOptions<T["name"]>) {
+  async execute<ExecutionOptions extends PostHogExecuteOptions<Series["name"]>>(
+    options: ExecutionOptions,
+  ): Promise<
+    Chart<ExecutionOptions["type"], AllLabelsOrNames<Series["name"], Series>>
+  > {
     const reqData: PostHogInsightTrendParams = {
       insight: "TRENDS",
       refresh: false,
@@ -4959,7 +5058,7 @@ class PostHogQuery<
         values: [],
       },
       date_from: "-7d",
-      display: "ActionsLineGraph",
+      display: chartTypeToPostHogType[options.type],
       interval: options.groupBy,
     };
     const encodedQueryString = toParams(reqData);
@@ -4978,17 +5077,62 @@ class PostHogQuery<
     }
     const json = (await data.json()) as TrendAPIResponse;
 
-    const output: Record<string, any>[] = new Array(json.result.length);
-    json.result.forEach((result, resultIndex) => {
-      result.data.forEach((value, index) => {
-        if (!output[index]) {
-          output[index] = {};
-        }
-        output[index]["date"] = result.labels[index];
-        output[index][this.series[resultIndex]?.label ?? result.label] = value;
-      });
-    });
-    return output;
+    switch (options.type) {
+      case "bar":
+      case "area":
+      case "cumulative-line":
+      case "line": {
+        const output: Chart<G>["data"] = new Array(json.result.length);
+        json.result.forEach((result, resultIndex) => {
+          result.data.forEach((value, index) => {
+            const entry = output[index];
+            const date = result.labels[index];
+            const label = this.series[resultIndex]?.label ?? result.label;
+            if (!date) {
+              return;
+            }
+            if (!entry) {
+              output[index] = {
+                date: date,
+                [label]: value,
+              };
+            } else {
+              entry[label] = value;
+            }
+          });
+        });
+        return {
+          data: output,
+          type: options.type,
+        };
+      }
+      case "pie": {
+        const output: PieChart<G>["data"] = [];
+        json.result.forEach((result, resultIndex) => {
+          output.push({
+            label: this.series[resultIndex]?.label ?? result.label,
+            value: result.aggregated_value,
+          });
+        });
+        return {
+          data: output,
+          type: options.type,
+        };
+      }
+      case "number": {
+        const value = json.result[0]?.aggregated_value ?? 0;
+
+        return {
+          data: {
+            label: this.series[0]?.label ?? json.result[0]?.label ?? "",
+            value,
+          },
+          type: options.type,
+        };
+      }
+      default:
+        throw new Error(`Unsupported type: ${options.type}`);
+    }
   }
 }
 

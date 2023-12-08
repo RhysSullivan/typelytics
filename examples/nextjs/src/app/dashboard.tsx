@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  BarChart,
   Card,
   Grid,
   LineChart,
@@ -25,20 +26,6 @@ export function DashboardExample(props: { largeCard: React.ReactNode }) {
         </TabList>
         <TabPanels>
           <TabPanel>
-            <Grid numItemsMd={2} numItemsLg={3} className="mt-6 gap-6">
-              <Card>
-                {/* Placeholder to set height */}
-                <div className="h-28" />
-              </Card>
-              <Card>
-                {/* Placeholder to set height */}
-                <div className="h-28" />
-              </Card>
-              <Card>
-                {/* Placeholder to set height */}
-                <div className="h-28" />
-              </Card>
-            </Grid>
             <div className="mt-6">
               <Card>{props.largeCard}</Card>
             </div>

@@ -114,13 +114,21 @@ class PostHogQuery<
   addSeries<V extends AnalyticsEventName, U extends PostHogSeries<V>>(
     event: U
   ): PostHogQuery<K | V, T | U, F> {
-    return new PostHogQuery([...this.scenarios, event], this.filterGroups);
+    return new PostHogQuery(
+      [...this.scenarios, event],
+      this.filterGroups,
+      this.config
+    );
   }
 
   addFilterGroup<U extends PostHogFilterGroup<T["name"]>>(
     filter: U
   ): PostHogQuery<K, T, F | U> {
-    return new PostHogQuery(this.scenarios, [...this.filterGroups, filter]);
+    return new PostHogQuery(
+      this.scenarios,
+      [...this.filterGroups, filter],
+      this.config
+    );
   }
 
   async execute(options: PostHogExecuteOptions<T["name"]>) {

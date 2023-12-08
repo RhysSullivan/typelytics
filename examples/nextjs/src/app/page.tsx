@@ -1,34 +1,33 @@
 import { DashboardExample } from "./dashboard";
 import { PostHog } from "~/data/events";
-import { ClientLine } from "./client-line";
-import { LineChart } from "@tremor/react";
+import { Chart } from "~/components/chart";
+import { AreaChart, LineChart } from "~/components/line-chart";
 
 export default async function DashboardSSR() {
   const posthog = new PostHog();
   const data = await posthog
     .query()
-    .addSeries({ name: "Community Page View", sampling: "total" })
     .addSeries({
-      name: "Community Page View",
-      label: "Community Page View (DAU)",
-      sampling: "dau",
+      name: "Asked Question",
+      sampling: "total",
+    })
+    .addSeries({
+      name: "Solved Question",
+      sampling: "total",
     })
     .execute({
-      groupBy: "hour",
-      type: "line",
+      groupBy: "day",
+      type: "area",
     });
-  const chart = (
-    <LineChart
-      className="mt-6"
-      data={data}
-      index="date"
-      categories={
-        Object.keys(data[0]).filter((key) => key !== "date") as string[]
+  return (
+    <DashboardExample
+      largeCard={
+        <Chart
+          data={data.data}
+          type={data.type}
+          categories={["Asked Question"]}
+        />
       }
-      colors={["emerald", "gray"]}
-      yAxisWidth={40}
     />
   );
-
-  return <DashboardExample largeCard={chart} />;
 }
