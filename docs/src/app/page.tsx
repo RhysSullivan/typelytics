@@ -1,47 +1,55 @@
-import Link from "next/link";
-import Balancer from "react-wrap-balancer";
-
-import { siteConfig } from "@/app/site-config";
-import { buttonVariants } from "@/components/ui/button";
-import { Icons } from "@/components/icons";
-
-export default function IndexPage() {
+export default function Home() {
   return (
-    <section className="container flex flex-col justify-center overflow-hidden items-center min-h-[calc(100vh-4rem)] gap-6 pb-8 pt-6 md:py-10">
-      <div className="max-w-5xl space-y-8">
-        <h1
-          className="font-cal animate-fade-up bg-gradient-to-br from-foreground/80 to-muted-foreground bg-clip-text text-center text-5xl/[3rem] font-bold text-transparent opacity-0 drop-shadow-sm md:text-7xl/[5rem]"
-          style={{ animationDelay: "0.20s", animationFillMode: "forwards" }}
-        >
-          <Balancer>{siteConfig.name}</Balancer>
+    <main className="my-6 max-w-7xl flex flex-col px-4 mx-auto items-center">
+      <div className="w-full max-w-5xl">
+        <h1 className="text-center font-extrabold text-4xl mt-12 sm:text-5xl md:text-6xl">
+          End to End{" "}
+          <span
+            className="underline decoration-wavy decoration-red-500  text-white underline-offset-[12px] font-mono"
+            style={{
+              textDecorationSkipInk: "none",
+            }}
+          >
+            typesafe
+          </span>{" "}
+          Analytics
         </h1>
-        <p
-          className="animate-fade-up text-center text-muted-foreground/80 opacity-0 md:text-xl"
-          style={{ animationDelay: "0.30s", animationFillMode: "forwards" }}
-        >
-          <Balancer>{siteConfig.description}</Balancer>
-        </p>
-        <div
-          className="flex justify-center gap-4 animate-fade-up opacity-0"
-          style={{ animationDelay: "0.40s", animationFillMode: "forwards" }}
-        >
-          <Link
-            href={siteConfig.links.docs}
-            className={buttonVariants({ size: "lg" })}
-          >
-            Documentation
-          </Link>
-          <Link
-            target="_blank"
-            rel="noreferrer"
-            href={siteConfig.links.github}
-            className={buttonVariants({ variant: "outline", size: "lg" })}
-          >
-            <Icons.gitHub className="mr-1 h-4 w-4" />
-            GitHub
-          </Link>
+
+        <div className="mt-8">
+          <p className="text-xl mb-2 font-medium text-gray-300 mx-auto text-center px-4 sm:text-lg max-w-[880px] md:text-xl">
+            Powerful typesafety from query to render. Types generated from your
+            analytics service provider. Rendered with Tremor
+          </p>
         </div>
       </div>
-    </section>
+
+      <div className="flex flex-col justify-center items-center gap-4 my-6 text-lg w-full sm:flex-row">
+        <a href="/docs" className="primary-button">
+          Get Started
+        </a>
+        <a
+          href="https://github.com/mokshit06/typewind"
+          target="_blank"
+          rel="noreferrer"
+          className="secondary-button"
+        >
+          GitHub
+        </a>
+      </div>
+
+      <video
+        src="/demo.mp4"
+        className="block w-full mx-auto max-w-60rem shadow-2xl rounded overflow-hidden"
+        autoPlay
+        controls
+        loop
+        muted
+        playsInline
+      >
+        <source src="/demo.mp4" type="video/mp4" />
+      </video>
+
+      <div className="features"></div>
+    </main>
   );
 }
