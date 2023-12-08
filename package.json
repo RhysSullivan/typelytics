@@ -1,5 +1,5 @@
 {
-  "name": "@prisma-enums/root",
+  "name": "@typecharts/root",
   "packageManager": "pnpm@8.5.0",
   "private": true,
   "type": "module",

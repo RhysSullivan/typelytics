@@ -1,4 +1,5 @@
-import { TimeSeriesChart, TimeSeriesChartTypes } from "~/data/events";
+"use client";
+import { TimeSeriesChart } from "@typecharts/core";
 import {
   LineChart as TremorLineChart,
   LineChartProps as TremorLineChartProps,
@@ -17,7 +18,7 @@ export type LineChartProps<Labels extends string> =
     Omit<TremorLineChartProps, "index" | "data" | "categories">;
 
 export function LineChart<const Labels extends string>(
-  props: LineChartProps<Labels>,
+  props: LineChartProps<Labels>
 ) {
   const { data } = props;
   const categories = data[0]
@@ -37,7 +38,7 @@ export type BarChartProps<Labels extends string> =
   TimeSeriesChartProps<Labels> &
     Omit<TremorBarChartProps, "index" | "data" | "categories">;
 export function BarChart<const Labels extends string>(
-  props: BarChartProps<Labels>,
+  props: BarChartProps<Labels>
 ) {
   const { data } = props;
   const categories = data[0]
@@ -52,18 +53,18 @@ export function BarChart<const Labels extends string>(
     />
   );
 }
+
 export type AreaChartProps<Labels extends string> =
   TimeSeriesChartProps<Labels> &
     Omit<TremorAreaChartProps, "index" | "data" | "categories">;
 export function AreaChart<const Labels extends string>(
-  props: AreaChartProps<Labels>,
+  props: AreaChartProps<Labels>
 ) {
   const { data } = props;
   const categories = data[0]
     ? Object.keys(data[0]).filter((key) => key !== "date")
     : [];
 
-  console.log(data, categories, props.categories);
   return (
     <TremorAreaChart
       className="mt-6"

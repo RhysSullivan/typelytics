@@ -1,0 +1,31 @@
+{
+  "name": "@typecharts/react",
+  "version": "0.2.0",
+  "author": "Rhys Sullivan",
+  "license": "MIT",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rhyssullivan/typecharts",
+    "directory": "packages/core"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "lint": "eslint . --ext .ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "eslint": "^8.39.0",
+    "tsup": "^6.7.0",
+    "typescript": "^5.0.4"
+  },
+  "dependencies": {
+    "@tremor/react": "^3.11.1",
+    "react": "^18.2.0",
+    "@typecharts/core": "workspace:*"
+  }
+}

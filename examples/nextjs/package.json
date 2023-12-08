@@ -18,7 +18,8 @@
     "react-dom": "18.2.0",
     "recharts": "^2.10.3",
     "zod": "^3.22.4",
-    "@typecharts/core": "workspace:*"
+    "@typecharts/next": "workspace:*",
+    "@typecharts/posthog": "workspace:*"
   },
   "devDependencies": {
     "@next/eslint-plugin-next": "^14.0.3",

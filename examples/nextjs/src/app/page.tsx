@@ -1,11 +1,10 @@
 import { DashboardExample } from "./dashboard";
-import { PostHog } from "@typecharts/core/src/posthog/insights";
-import { Chart } from "~/components/chart";
-import { AreaChart, LineChart } from "~/components/line-chart";
+import { PostHog } from "@typecharts/posthog";
+import { Chart } from "@typecharts/next";
 import { events } from "~/data/events";
 
 export default async function DashboardSSR() {
-  const posthog = new PostHog({ events: events });
+  const posthog = new PostHog({ events });
   const data = await posthog
     .query()
     .addSeries({
@@ -18,17 +17,8 @@ export default async function DashboardSSR() {
     })
     .execute({
       groupBy: "day",
-      type: "area",
+      type: "line",
     });
-  return (
-    <DashboardExample
-      largeCard={
-        <Chart
-          data={data.data}
-          type={data.type}
-          categories={["Asked Question"]}
-        />
-      }
-    />
-  );
+
+  return <DashboardExample largeCard={<Chart {...data} />} />;
 }

@@ -1,3 +1,5 @@
+import { ChartType, Chart } from "@typecharts/core";
+
 const mathTypes = [
   "total",
   "dau",
@@ -57,68 +59,7 @@ export type PostHogSeries<T extends string> = {
 
 type Interval = "day" | "hour" | "week" | "month";
 
-export type LineChartType = "line";
-export type BarChartType = "bar";
-export type AreaChartType = "area";
-export type CumulativeLineChartType = "cumulative-line";
-export type NumberChartType = "number";
-export type PieChartType = "pie";
-export type BarTotalChartType = "bar-total";
-export type TableChartType = "table";
-export type WorldChartType = "world";
-
-export type ChartType =
-  | LineChartType
-  | BarChartType
-  | AreaChartType
-  | CumulativeLineChartType
-  | NumberChartType
-  | PieChartType
-  | BarTotalChartType
-  | TableChartType
-  | WorldChartType;
-
 type OmitStringUnion<T, U extends T> = T extends U ? never : T;
-
-export type TimeSeriesChartTypes =
-  | LineChartType
-  | BarChartType
-  | AreaChartType
-  | CumulativeLineChartType;
-
-export type TimeSeriesChart<T extends string> = {
-  type: TimeSeriesChartTypes;
-  data: ({
-    date: string;
-  } & Record<T, string>)[];
-};
-
-export type NumberChart<T extends string> = {
-  type: NumberChartType;
-  data: {
-    value: number;
-    label: T;
-  };
-};
-
-export type PieChart<T extends string> = {
-  type: PieChartType;
-  data: {
-    label: T;
-    value: number;
-  }[];
-};
-
-export type Chart<
-  Type extends ChartType,
-  T extends string
-> = Type extends TimeSeriesChartTypes
-  ? TimeSeriesChart<T>
-  : Type extends "number"
-  ? NumberChart<T>
-  : Type extends "pie"
-  ? PieChart<T>
-  : never;
 
 type IsUnion<T, B = T> = T extends B ? ([B] extends [T] ? false : true) : never;
 
@@ -179,22 +120,25 @@ function toParams(obj: Record<string, any>, explodeArrays = false): string {
 
   return Object.entries(obj)
     .filter((item) => item[1] != undefined && item[1] != null)
-    .reduce((acc, [key, val]) => {
-      /**
-       *  query parameter arrays can be handled in two ways
-       *  either they are encoded as a single query parameter
-       *    a=[1, 2] => a=%5B1%2C2%5D
-       *  or they are "exploded" so each item in the array is sent separately
-       *    a=[1, 2] => a=1&a=2
-       **/
-      if (explodeArrays && Array.isArray(val)) {
-        val.forEach((v) => acc.push([key, v]));
-      } else {
-        acc.push([key, val]);
-      }
+    .reduce(
+      (acc, [key, val]) => {
+        /**
+         *  query parameter arrays can be handled in two ways
+         *  either they are encoded as a single query parameter
+         *    a=[1, 2] => a=%5B1%2C2%5D
+         *  or they are "exploded" so each item in the array is sent separately
+         *    a=[1, 2] => a=1&a=2
+         **/
+        if (explodeArrays && Array.isArray(val)) {
+          val.forEach((v) => acc.push([key, v]));
+        } else {
+          acc.push([key, val]);
+        }
 
-      return acc;
-    }, [] as [string, any][])
+        return acc;
+      },
+      [] as [string, any][]
+    )
     .map(([key, val]) => `${key}=${handleVal(val)}`)
     .join("&");
 }
@@ -251,7 +195,7 @@ const chartTypeToPostHogType: Record<ChartType, PostHogDisplayType> = {
 
 type AllLabelsOrNames<
   EventName extends string,
-  Series extends PostHogSeries<EventName> = PostHogSeries<EventName>
+  Series extends PostHogSeries<EventName> = PostHogSeries<EventName>,
 > = {
   [K in keyof Series as "label"]: Series["label"] extends string
     ? Series["label"]
@@ -262,7 +206,7 @@ class PostHogQuery<
   const Events extends EventMap,
   const EventNames extends Extract<keyof Events, string>,
   const Filters extends PostHogFilterGroup<EventNames>,
-  const Series extends PostHogSeries<EventNames>
+  const Series extends PostHogSeries<EventNames>,
 > {
   constructor(
     private readonly series: Series[],
@@ -278,7 +222,7 @@ class PostHogQuery<
     >
       ? PostHogSeries<NewEventName> &
           Required<Pick<PostHogSeries<NewEventName>, "label">>
-      : PostHogSeries<NewEventName>
+      : PostHogSeries<NewEventName>,
   >(
     event: NewSeries["label"] extends AllLabelsOrNames<Series["name"], Series>
       ? {
