@@ -1,10 +1,11 @@
 import { DashboardExample } from "./dashboard";
-import { PostHog } from "~/data/events";
+import { PostHog } from "@typecharts/core/src/posthog/insights";
 import { Chart } from "~/components/chart";
 import { AreaChart, LineChart } from "~/components/line-chart";
+import { events } from "~/data/events";
 
 export default async function DashboardSSR() {
-  const posthog = new PostHog();
+  const posthog = new PostHog({ events: events });
   const data = await posthog
     .query()
     .addSeries({

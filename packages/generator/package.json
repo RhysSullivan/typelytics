@@ -1,22 +1,13 @@
 {
-  "name": "@prisma-enums/generator",
+  "name": "@typecharts/core",
   "version": "0.2.0",
-  "author": "Julius Marminge",
+  "author": "Rhys Sullivan",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/juliusmarminge/acme-corp-lib",
-    "directory": "packages/generator"
-  },
-  "bin": {
-    "prisma-enums": "dist/bin.js"
-  },
-  "files": [
-    "dist",
-    "package.json",
-    "LICENSE",
-    "README.md"
-  ],
+    "directory": "packages/core"
+  },  
   "scripts": {
     "start": "pnpm build && node dist/bin.js",
     "build": "tsup",
