@@ -1,25 +1,5 @@
 import { LinkButton } from "@/components/ui/link-button";
 import { siteConfig } from "./site-config";
-import { Codeblock } from "@/components/mdx/code-block";
-
-const codeExample1 = `
-const posthog = new PostHog({ events });
-const data = await posthog
-  .query()
-  .addSeries({
-    name: "Asked Question",
-    sampling: "total",
-  })
-  .addSeries({
-    name: "Solved Question",
-    sampling: "total",
-  })
-  .execute({
-    groupBy: "day",
-    type: "line",
-  });
-  `;
-
 export default function Home() {
   return (
     <main className="my-6 max-w-7xl flex flex-col px-4 mx-auto items-center">
