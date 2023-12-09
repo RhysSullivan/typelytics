@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     title: siteConfig.name,
     description: siteConfig.description,
     images: [{ url: "https://typecharts.vercel.app/opengraph-image.png" }],
-    creator: "@jullerino",
+    creator: "@rhyssullivan",
   },
 };
 
