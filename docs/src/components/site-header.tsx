@@ -5,18 +5,31 @@ import { buttonVariants } from "@/components/ui/button";
 import { Icons } from "@/components/icons";
 import { MainNav } from "@/components/main-nav";
 import { MobileDropdown } from "@/components/mobile-nav";
+import { AnswerOverflowLogo } from "./answer-overflow-logo";
 
 export function SiteHeader() {
   return (
     <header className="bg-background sticky top-0 z-50 w-full border-b">
       <div className="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
-        <Link
-          href="/"
-          className="items-center space-x-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring ring-offset-background flex h-9 mr-3 px-3"
-        >
-          <Icons.logo className="h-6 w-6" />
-          <span className="font-bold text-lg">{siteConfig.name}</span>
-        </Link>
+        <div className="items-center flex h-9">
+          <Link
+            href="/"
+            className="items-center space-x-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring ring-offset-background flex h-9"
+          >
+            <Icons.chart className="h-6 w-6 stroke-red" />
+            <span className="font-bold text-lg">typecharts</span>
+          </Link>
+          <Link
+            href="https://www.answeroverflow.com/about"
+            target="_blank"
+            className="items-center space-x-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring ring-offset-background flex h-9"
+          >
+            <span className="font-bold text-base hidden md:block">
+              &nbsp;by&nbsp;
+            </span>
+            <AnswerOverflowLogo width={120} className="hidden md:block " />
+          </Link>
+        </div>
 
         <MainNav items={siteConfig.mainNav} />
         <div className="flex flex-1 items-center justify-end space-x-4">

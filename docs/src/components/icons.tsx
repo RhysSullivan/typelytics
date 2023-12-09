@@ -6,6 +6,7 @@ import {
   type Icon as LucideIcon,
   TerminalSquare,
   Command,
+  LineChartIcon,
 } from "lucide-react";
 
 export type Icon = LucideIcon;
@@ -15,6 +16,7 @@ export const Icons = {
   moon: Moon,
   twitter: Twitter,
   logo: Command,
+  chart: LineChartIcon,
   gitHub: (props: LucideProps) => (
     <svg viewBox="0 0 438.549 438.549" {...props}>
       <path
