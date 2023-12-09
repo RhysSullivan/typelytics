@@ -299,6 +299,7 @@ class PostHogQuery<
       method: "GET",
     });
     if (!data.ok) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const text = await data.json();
       throw new Error(
         `Failed to fetch data: ${data.statusText} ${JSON.stringify(text)}`
@@ -311,7 +312,10 @@ class PostHogQuery<
       case "area":
       case "cumulative-line":
       case "line": {
-        const output: Chart<G>["data"] = new Array(json.result.length);
+        const output: Chart<
+          ExecutionOptions["type"],
+          AllLabelsOrNames<Series["name"], Series>
+        >["data"] = new Array(json.result.length);
         json.result.forEach((result, resultIndex) => {
           result.data.forEach((value, index) => {
             const entry = output[index];

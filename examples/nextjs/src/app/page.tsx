@@ -1,7 +1,7 @@
 import { DashboardExample } from "./dashboard";
 import { PostHog } from "@typecharts/posthog";
 import { Chart } from "@typecharts/next";
-import { events } from "~/data/events";
+import type { events } from "~/data/events";
 
 export default async function DashboardSSR() {
   const posthog = new PostHog<typeof events>();
@@ -21,7 +21,6 @@ export default async function DashboardSSR() {
       groupBy: "day",
       type: "line",
     });
-    data.data[0]?.
 
   return <DashboardExample largeCard={<Chart {...data} />} />;
 }

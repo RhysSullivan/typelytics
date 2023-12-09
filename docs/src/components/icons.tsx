@@ -6,7 +6,6 @@ import {
   type Icon as LucideIcon,
   TerminalSquare,
   Command,
-  LineChartIcon,
 } from "lucide-react";
 
 export type Icon = LucideIcon;
@@ -16,7 +15,23 @@ export const Icons = {
   moon: Moon,
   twitter: Twitter,
   logo: Command,
-  chart: LineChartIcon,
+  chart: (props: LucideProps) => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      {...props}
+    >
+      <path d="M3 3v18h18" />
+      <path d="m19 9-5 5-4-4-3 3" className="stroke-red-500" />
+    </svg>
+  ),
   gitHub: (props: LucideProps) => (
     <svg viewBox="0 0 438.549 438.549" {...props}>
       <path
