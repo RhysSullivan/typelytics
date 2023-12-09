@@ -6,8 +6,14 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/cn";
 import { NavItem } from "./main-nav";
 
+export interface NestedNestedNavItem extends NavItem {
+  items?: NavItem[];
+  clickable?: boolean;
+}
+
 export interface NestedNavItem extends NavItem {
-  items: NestedNavItem[];
+  items: NestedNestedNavItem[];
+  clickable?: boolean;
 }
 
 export function DocsSidebarNav(props: { items: NestedNavItem[] }) {
@@ -30,13 +36,13 @@ export function DocsSidebarNav(props: { items: NestedNavItem[] }) {
 }
 
 export function DocsSidebarNavItems(props: {
-  items: NestedNavItem[];
+  items: NestedNestedNavItem[];
   pathname: string | null;
 }) {
   return props.items?.length ? (
     <div className="grid grid-flow-row auto-rows-max text-sm">
-      {props.items.map((item, index) =>
-        item.href ? (
+      {props.items.map((item, index) => {
+        const Entry = item.href ? (
           <Link
             key={index}
             href={item.href}
@@ -45,7 +51,7 @@ export function DocsSidebarNavItems(props: {
               item.disabled && "cursor-not-allowed opacity-60",
               {
                 "font-medium bg-accent border-border text-accent-foreground":
-                  props.pathname === item.href,
+                  props.pathname === item.href && !item.clickable,
               }
             )}
             target={item.external ? "_blank" : ""}
@@ -61,12 +67,25 @@ export function DocsSidebarNavItems(props: {
         ) : (
           <span
             key={index}
-            className="flex w-full cursor-not-allowed items-center rounded-md p-2 text-muted-foreground hover:underline"
+            className="group flex w-full items-center rounded-md border border-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ringfocus-visible:outline-none focus-visible:ring-ring ring-offset-background h-9 px-3"
           >
             {item.title}
           </span>
-        )
-      )}
+        );
+        return (
+          <div>
+            {Entry}
+            <div className="pl-4">
+              {item?.items?.length ? (
+                <DocsSidebarNavItems
+                  items={item.items}
+                  pathname={props.pathname}
+                />
+              ) : null}
+            </div>
+          </div>
+        );
+      })}
     </div>
   ) : null;
 }

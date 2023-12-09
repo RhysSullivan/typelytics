@@ -1,5 +1,5 @@
 export const siteConfig = {
-  name: "Acme Corp Lib",
+  name: "typecharts",
   description:
     "The perfect starter template for your next TypeScript library. Batteries included powered by PNPM Workspaces, Turborepo, tsup & Changesets.",
   mainNav: [
@@ -10,32 +10,47 @@ export const siteConfig = {
   ],
   sidebarNav: [
     {
-      title: "Monorepo Setup",
+      title: "Docs",
       items: [
         {
           title: "Introduction",
           href: "/docs/introduction",
-          items: [],
         },
         {
-          title: "Release",
-          href: "/docs/release",
+          title: "Core",
+          href: "/docs/core",
           items: [],
         },
       ],
     },
     {
-      title: "Prisma Generator",
+      title: "Querying",
       items: [
         {
-          title: "Generator",
-          href: "/docs/generator",
-          items: [],
+          title: "PostHog",
+          items: [
+            {
+              title: "Query",
+              href: "/docs/posthog/query",
+            },
+            {
+              title: "Generator",
+              href: "/docs/posthog/generator",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      title: "Rendering",
+      items: [
+        {
+          title: "React",
+          href: "/docs/react",
         },
         {
-          title: "Eslint Plugin",
-          href: "/docs/eslint",
-          items: [],
+          title: "Next",
+          href: "/docs/next",
         },
       ],
     },
