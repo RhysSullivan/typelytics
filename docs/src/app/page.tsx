@@ -6,15 +6,15 @@ export default function Home() {
     <main className="my-6 max-w-7xl flex flex-col px-4 mx-auto items-center">
       <div className="w-full max-w-5xl">
         <h1 className="text-center font-extrabold text-3xl mt-12 sm:text-5xl md:text-5xl">
+          typesafe analytics from&nbsp;
           <span
             className="underline decoration-wavy decoration-red-500  text-white underline-offset-[12px] font-mono"
             style={{
               textDecorationSkipInk: "none",
             }}
           >
-            typesafe
-          </span>{" "}
-          Analytics from query to render
+            query to render
+          </span>
         </h1>
 
         <div className="mt-8">
@@ -62,10 +62,10 @@ export default function Home() {
             Motivation
           </h3>
           <p>
-            There's a gap missing in the current analytics ecosystem. We have
-            powerful tools to collect data, and view that data in internal
-            dashboards, but current tooling is lacking for exposing those
-            analytics back to users.
+            There's a gap in the current analytics ecosystem. We have powerful
+            tools to collect data, and view that data in internal dashboards,
+            but current tooling is lacking for exposing those analytics back to
+            users.
           </p>
           <p></p>
         </div>

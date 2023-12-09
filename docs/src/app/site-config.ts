@@ -41,7 +41,7 @@ export const siteConfig = {
     },
   ],
   links: {
-    twitter: "https://twitter.com/jullerino",
+    twitter: "https://twitter.com/rhyssullivan",
     github: "https://github.com/rhyssullivan/typecharts",
     docs: "/docs",
   },
