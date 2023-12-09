@@ -25,7 +25,17 @@ const mathTypes = [
   "hogql",
 ] as const;
 
-type EventMap = Record<string, any>;
+export type PostHogProperty = {
+  name: string;
+  type: "date" | "number" | "string" | "boolean" | "unknown";
+};
+
+export type PostHogEvent = {
+  name: string;
+  properties: readonly PostHogProperty[];
+};
+
+type EventMap = Record<string, PostHogEvent>;
 
 export type PostHogSamplingOptions = (typeof mathTypes)[number];
 
@@ -73,11 +83,10 @@ type PostHogExecuteOptions<PropertyNames extends string> = {
   compareToPreviousPeriod?: boolean;
 };
 
-type PostHogConfig<T extends EventMap> = {
+type PostHogConfig = {
   apiKey: string;
   projectId: string;
   url: string;
-  events: T;
 };
 
 type TrendResult = {
@@ -209,9 +218,11 @@ class PostHogQuery<
   const Series extends PostHogSeries<EventNames>,
 > {
   constructor(
+    // can't make inferred types work without passing in events
+    private readonly events: Events,
     private readonly series: Series[],
     private readonly filterGroups: Filters[],
-    private readonly config: PostHogConfig<Events>
+    private readonly config: PostHogConfig
   ) {}
 
   addSeries<
@@ -236,6 +247,7 @@ class PostHogQuery<
     Series | NewSeries
   > {
     return new PostHogQuery(
+      this.events,
       [...this.series, event as NewSeries],
       this.filterGroups,
       this.config
@@ -246,6 +258,7 @@ class PostHogQuery<
     filter: NewFilter
   ): PostHogQuery<Events, EventNames, Filters | NewFilter, Series> {
     return new PostHogQuery(
+      this.events,
       this.series,
       [...this.filterGroups, filter],
       this.config
@@ -352,9 +365,9 @@ class PostHogQuery<
   }
 }
 
-export class PostHog<const T extends EventMap> {
-  private config: PostHogConfig<T>;
-  constructor(opts?: Partial<PostHogConfig<T>>) {
+export class PostHog<const Events extends EventMap> {
+  private config: PostHogConfig;
+  constructor(opts?: Partial<PostHogConfig>) {
     const apiKey = opts?.apiKey ?? process.env.POSTHOG_API_KEY;
 
     if (!apiKey) {
@@ -369,16 +382,19 @@ export class PostHog<const T extends EventMap> {
       opts?.url ??
       process.env.POSTHOG_URL ??
       `https://app.posthog.com/api/projects/${projectId}/`;
-    const events = (opts?.events ?? {}) as T;
     this.config = {
       apiKey,
       projectId,
       url,
-      events,
     };
   }
 
   query() {
-    return new PostHogQuery([], [], this.config);
+    // ts has issues, we never use events so this is fine
+    // if you're reading this, no you're not
+    // unless you know how to solve it, then make a PR
+    // this is our secret
+    // don't snitch
+    return new PostHogQuery({} as Events, [], [], this.config);
   }
 }

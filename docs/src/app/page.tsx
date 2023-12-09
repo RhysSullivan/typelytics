@@ -22,10 +22,10 @@ export default function Home() {
         </h1>
 
         <div className="mt-8">
-          <p className="text-xl mb-2 font-medium text-gray-300 mx-auto text-center px-4 sm:text-lg max-w-[880px] md:text-xl">
-            Filling the gap in your analytics pipeline. Giving you the power to
-            query all of your analytics in your own applications and render as
-            charts
+          <p className="text-xl mb-2 text-gray-300 mx-auto text-center px-4 sm:text-lg max-w-[880px] md:text-xl font-mono">
+            Filling the gap in your analytics pipeline by giving you the power
+            to query all of your analytics from your own applications and render
+            them as charts
           </p>
         </div>
       </div>

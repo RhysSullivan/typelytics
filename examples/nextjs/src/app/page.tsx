@@ -4,21 +4,24 @@ import { Chart } from "@typecharts/next";
 import { events } from "~/data/events";
 
 export default async function DashboardSSR() {
-  const posthog = new PostHog({ events });
+  const posthog = new PostHog<typeof events>();
   const data = await posthog
     .query()
     .addSeries({
-      name: "Asked Question",
-      sampling: "total",
+      name: "$autocapture",
+      sampling: "dau",
+      label: "$autocapture",
     })
     .addSeries({
-      name: "Solved Question",
-      sampling: "total",
+      sampling: "dau",
+      name: "$autocapture",
+      label: "autocapture",
     })
     .execute({
       groupBy: "day",
       type: "line",
     });
+    data.data[0]?.
 
   return <DashboardExample largeCard={<Chart {...data} />} />;
 }
