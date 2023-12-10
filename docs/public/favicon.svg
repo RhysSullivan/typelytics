@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:svgjs="http://svgjs.com/svgjs" width="48" height="48">
+    <svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" width="48"
+        height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6">
+        <path d="M3 3v18h18" stroke="#E1E7EF" fill="none" stroke-width="2px"></path>
+        <path d="m19 9-5 5-4-4-3 3" class="stroke-red-500" stroke="#EF4444" fill="none"
+            stroke-width="2px"></path>
+    </svg>
+    <style>@media (prefers-color-scheme: light) { :root { filter: none; } }
+</style>
+</svg>

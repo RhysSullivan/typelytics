@@ -2,8 +2,11 @@ import fs from "fs";
 import { exec } from "child_process";
 
 const pkgJsonPaths = [
-  "packages/eslint-plugin/package.json",
-  "packages/generator/package.json",
+  "packages/core/package.json",
+  "packages/posthog/package.json",
+  "packages/posthog-generator/package.json",
+  "packages/react/package.json",
+  "packages/next/package.json",
 ];
 
 try {
@@ -24,8 +27,8 @@ try {
 
       const content = JSON.stringify(pkg, null, "\t") + "\n";
       const newContent = content.replace(
-        new RegExp(`"@prisma-enums/\\*": "${oldVersion}"`, "g"),
-        `"@prisma-enums/*": "${newVersion}"`
+        new RegExp(`"@typecharts/\\*": "${oldVersion}"`, "g"),
+        `"@typecharts/*": "${newVersion}"`
       );
 
       fs.writeFileSync(pkgJsonPath, newContent);

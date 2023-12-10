@@ -3,13 +3,14 @@
   "version": "0.2.0",
   "author": "Rhys Sullivan",
   "license": "MIT",
-  "repository": {
+  "type": "module",
+  "repository": {  
     "type": "git",
     "url": "https://github.com/rhyssullivan/typecharts",
-    "directory": "packages/core"
-  },  
+    "directory": "packages/posthog-generator"
+  },
   "scripts": {
-    "start": "pnpm build && node dist/bin.js",
+    "start": "pnpm build && node dist/index.js",
     "build": "tsup",
     "dev": "tsup --watch",
     "lint": "eslint . --ext .ts",
@@ -23,6 +24,7 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
-    "dayjs": "^1.11.10"
+    "@clack/prompts": "^0.7.0",
+    "@typecharts/posthog": "workspace:*"
   }
 }

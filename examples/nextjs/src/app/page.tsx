@@ -1,25 +1,46 @@
 import { DashboardExample } from "./dashboard";
 import { PostHog } from "@typecharts/posthog";
 import { Chart } from "@typecharts/next";
-import type { events } from "~/data/events";
+import type { PostHogEvents } from "~/data/events";
 
 export default async function DashboardSSR() {
-  const posthog = new PostHog<typeof events>();
+  const posthog = new PostHog<PostHogEvents>();
   const data = await posthog
     .query()
-    .addSeries({
-      name: "$autocapture",
-      sampling: "dau",
-      label: "$autocapture",
+    .addSeries("$pageview", {
+      sampling: "total",
+      where: {
+        filters: {
+          compare: "equals",
+          name: "$search_engine",
+          value: "/about",
+        },
+        match: "all",
+      },
     })
-    .addSeries({
+    .addSeries("Asked Question", {
       sampling: "dau",
-      name: "$autocapture",
-      label: "autocapture",
+    })
+    .addFilterGroup({
+      match: "all",
+      filters: {
+        name: "$current_url",
+        compare: "equals",
+        value: "US",
+      },
+    })
+    .addFilterGroup({
+      match: "all",
+      filters: {
+        compare: "equals",
+        name: "$pathname",
+        value: "/about",
+      },
     })
     .execute({
       groupBy: "day",
       type: "line",
+      breakdownBy: "Answer Overflow Account Id",
     });
 
   return <DashboardExample largeCard={<Chart {...data} />} />;

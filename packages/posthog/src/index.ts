@@ -25,9 +25,15 @@ const mathTypes = [
   "hogql",
 ] as const;
 
+export type PosthogPropertyType =
+  | "DateTime"
+  | "String"
+  | "Numeric"
+  | "Boolean"
+  | null;
 export type PostHogProperty = {
   name: string;
-  type: "date" | "number" | "string" | "boolean" | "unknown";
+  type: PosthogPropertyType;
 };
 
 export type PostHogEvent = {
@@ -35,12 +41,15 @@ export type PostHogEvent = {
   properties: readonly PostHogProperty[];
 };
 
-type EventMap = Record<string, PostHogEvent>;
+type _ExtendOnlyEventMap = Record<string, PostHogEvent>;
 
 export type PostHogSamplingOptions = (typeof mathTypes)[number];
 
-export type PostHogFilter<EventName extends string> = {
-  name: EventName;
+export type PostHogFilter<
+  EventName extends string,
+  Events extends _ExtendOnlyEventMap,
+> = {
+  name: Events[EventName]["properties"][number]["name"];
   compare:
     | "equals"
     | "does_not_equal"
@@ -55,16 +64,22 @@ export type PostHogFilter<EventName extends string> = {
   value: string | number | boolean;
 };
 
-export type PostHogFilterGroup<T extends string> = {
+export type PostHogFilterGroup<
+  T extends string,
+  Events extends _ExtendOnlyEventMap,
+> = {
   match: "all" | "any";
-  filters: PostHogFilter<T>[] | PostHogFilter<T>;
+  filters: PostHogFilter<T, Events> | PostHogFilter<T, Events>[];
 };
 
-export type PostHogSeries<T extends string> = {
+export type PostHogSeries<
+  T extends string,
+  Events extends _ExtendOnlyEventMap,
+> = {
   name: T;
   label?: string;
   sampling: PostHogSamplingOptions;
-  where?: PostHogFilter<T> | PostHogFilter<T>[];
+  where?: PostHogFilterGroup<T, Events> | PostHogFilterGroup<T, Events>[];
 };
 
 type Interval = "day" | "hour" | "week" | "month";
@@ -112,7 +127,10 @@ export type TrendAPIResponse<ResultType = TrendResult[]> = {
   next: string | null;
 };
 
-function toParams(obj: Record<string, any>, explodeArrays = false): string {
+export function toParams(
+  obj: Record<string, any>,
+  explodeArrays = false
+): string {
   if (!obj) {
     return "";
   }
@@ -146,7 +164,7 @@ function toParams(obj: Record<string, any>, explodeArrays = false): string {
 
         return acc;
       },
-      [] as [string, any][]
+      [] as [string, unknown][]
     )
     .map(([key, val]) => `${key}=${handleVal(val)}`)
     .join("&");
@@ -204,7 +222,11 @@ const chartTypeToPostHogType: Record<ChartType, PostHogDisplayType> = {
 
 type AllLabelsOrNames<
   EventName extends string,
-  Series extends PostHogSeries<EventName> = PostHogSeries<EventName>,
+  Events extends _ExtendOnlyEventMap,
+  Series extends PostHogSeries<EventName, Events> = PostHogSeries<
+    EventName,
+    Events
+  >,
 > = {
   [K in keyof Series as "label"]: Series["label"] extends string
     ? Series["label"]
@@ -212,10 +234,10 @@ type AllLabelsOrNames<
 }["label"];
 
 class PostHogQuery<
-  const Events extends EventMap,
+  const Events extends _ExtendOnlyEventMap,
   const EventNames extends Extract<keyof Events, string>,
-  const Filters extends PostHogFilterGroup<EventNames>,
-  const Series extends PostHogSeries<EventNames>,
+  const Filters extends PostHogFilterGroup<EventNames, Events>,
+  const Series extends PostHogSeries<EventNames, Events>,
 > {
   constructor(
     // can't make inferred types work without passing in events
@@ -227,37 +249,34 @@ class PostHogQuery<
 
   addSeries<
     const NewEventName extends EventNames,
-    const NewSeries extends NewEventName extends AllLabelsOrNames<
-      Series["name"],
-      Series
-    >
-      ? PostHogSeries<NewEventName> &
-          Required<Pick<PostHogSeries<NewEventName>, "label">>
-      : PostHogSeries<NewEventName>,
+    const NewSeries extends Omit<PostHogSeries<NewEventName, Events>, "name">,
   >(
-    event: NewSeries["label"] extends AllLabelsOrNames<Series["name"], Series>
-      ? {
-          label: "Your label is not unique, it cannot match any existing names or labels in this query.";
-        }
-      : NewSeries
+    name: NewEventName,
+    event: NewSeries
   ): PostHogQuery<
     Events,
     EventNames | NewEventName,
     Filters,
-    Series | NewSeries
+    Series | (NewSeries & { name: NewEventName })
   > {
     return new PostHogQuery(
       this.events,
-      [...this.series, event as NewSeries],
+      [
+        ...this.series,
+        {
+          ...event,
+          name,
+        },
+      ],
       this.filterGroups,
       this.config
     );
   }
 
-  addFilterGroup<const NewFilter extends PostHogFilterGroup<Series["name"]>>(
+  addFilterGroup<NewFilter extends PostHogFilterGroup<Series["name"], Events>>(
     filter: NewFilter
   ): PostHogQuery<Events, EventNames, Filters | NewFilter, Series> {
-    return new PostHogQuery(
+    return new PostHogQuery<Events, EventNames, Filters | NewFilter, Series>(
       this.events,
       this.series,
       [...this.filterGroups, filter],
@@ -265,10 +284,17 @@ class PostHogQuery<
     );
   }
 
-  async execute<ExecutionOptions extends PostHogExecuteOptions<Series["name"]>>(
+  async execute<
+    ExecutionOptions extends PostHogExecuteOptions<
+      Events[Series["name"]]["properties"][number]["name"]
+    >,
+  >(
     options: ExecutionOptions
   ): Promise<
-    Chart<ExecutionOptions["type"], AllLabelsOrNames<Series["name"], Series>>
+    Chart<
+      ExecutionOptions["type"],
+      AllLabelsOrNames<Series["name"], Events, Series>
+    >
   > {
     const reqData: PostHogInsightTrendParams = {
       insight: "TRENDS",
@@ -306,70 +332,73 @@ class PostHogQuery<
       );
     }
     const json = (await data.json()) as TrendAPIResponse;
+    return json as unknown as Chart<
+      ExecutionOptions["type"],
+      AllLabelsOrNames<Series["name"], Events, Series>
+    >;
+    // switch (options.type) {
+    //   case "bar":
+    //   case "area":
+    //   case "cumulative-line":
+    //   case "line": {
+    //     const output: Chart<
+    //       ExecutionOptions["type"],
+    //       AllLabelsOrNames<Series["name"], Events, Series>
+    //     >["data"] = new Array(json.result.length);
+    //     json.result.forEach((result, resultIndex) => {
+    //       result.data.forEach((value, index) => {
+    //         const entry = output[index];
+    //         const date = result.labels[index];
+    //         const label = this.series[resultIndex]?.label ?? result.label;
+    //         if (!date) {
+    //           return;
+    //         }
+    //         if (!entry) {
+    //           output[index] = {
+    //             date: date,
+    //             [label]: value,
+    //           };
+    //         } else {
+    //           entry[label] = value;
+    //         }
+    //       });
+    //     });
+    //     return {
+    //       data: output,
+    //       type: "pie",
+    //     };
+    //   }
+    //   case "pie": {
+    //     const output: PieChart<G>["data"] = [];
+    //     json.result.forEach((result, resultIndex) => {
+    //       output.push({
+    //         label: this.series[resultIndex]?.label ?? result.label,
+    //         value: result.aggregated_value,
+    //       });
+    //     });
+    //     return {
+    //       data: output,
+    //       type: options.type,
+    //     };
+    //   }
+    //   case "number": {
+    //     const value = json.result[0]?.aggregated_value ?? 0;
 
-    switch (options.type) {
-      case "bar":
-      case "area":
-      case "cumulative-line":
-      case "line": {
-        const output: Chart<
-          ExecutionOptions["type"],
-          AllLabelsOrNames<Series["name"], Series>
-        >["data"] = new Array(json.result.length);
-        json.result.forEach((result, resultIndex) => {
-          result.data.forEach((value, index) => {
-            const entry = output[index];
-            const date = result.labels[index];
-            const label = this.series[resultIndex]?.label ?? result.label;
-            if (!date) {
-              return;
-            }
-            if (!entry) {
-              output[index] = {
-                date: date,
-                [label]: value,
-              };
-            } else {
-              entry[label] = value;
-            }
-          });
-        });
-        return {
-          data: output,
-          type: options.type,
-        };
-      }
-      case "pie": {
-        const output: PieChart<G>["data"] = [];
-        json.result.forEach((result, resultIndex) => {
-          output.push({
-            label: this.series[resultIndex]?.label ?? result.label,
-            value: result.aggregated_value,
-          });
-        });
-        return {
-          data: output,
-          type: options.type,
-        };
-      }
-      case "number": {
-        const value = json.result[0]?.aggregated_value ?? 0;
-
-        return {
-          data: {
-            label: this.series[0]?.label ?? json.result[0]?.label ?? "",
-            value,
-          },
-          type: options.type,
-        };
-      }
-      default:
-        throw new Error(`Unsupported type: ${options.type}`);
-    }
+    //     return {
+    //       data: {
+    //         label: this.series[0]?.label ?? json.result[0]?.label ?? "",
+    //         value,
+    //       },
+    //       type: options.type,
+    //     };
+    //   }
+    //   default:
+    //     throw new Error(`Unsupported type: ${options.type}`);
+    // }
   }
 }
 
-export class PostHog<const Events extends EventMap> {
+export class PostHog<const Events extends _ExtendOnlyEventMap> {
   private config: PostHogConfig;
   constructor(opts?: Partial<PostHogConfig>) {
     const apiKey = opts?.apiKey ?? process.env.POSTHOG_API_KEY;

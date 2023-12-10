@@ -49,11 +49,11 @@ export type PieChart<T extends string> = {
 
 export type Chart<
   Type extends ChartType,
-  T extends string,
+  Labels extends string,
 > = Type extends TimeSeriesChartTypes
-  ? TimeSeriesChart<T>
+  ? TimeSeriesChart<Labels>
   : Type extends "number"
-    ? NumberChart<T>
+    ? NumberChart<Labels>
     : Type extends "pie"
-      ? PieChart<T>
+      ? PieChart<Labels>
       : never;

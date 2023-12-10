@@ -19,11 +19,9 @@ export function Codeblock(props: CodeblockProps) {
   const { children, ...rest } = props;
   const language = props["data-language"] as string;
   const theme = props["data-theme"] as string;
-  console.log("language", language, "theme", theme);
   const Icon = {
     js: Icons.javascript,
     ts: Icons.typescript,
-    prisma: Icons.prisma,
     bash: Icons.bash,
   }[language];
 
