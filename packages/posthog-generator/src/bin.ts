@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import {
   PostHogEvent,
   toParams,
@@ -134,8 +136,8 @@ async function fetchAllEvents() {
   }
   return result;
 }
-import { intro, text, outro } from "@clack/prompts";
-intro("@typecharts posthog type generation LI");
+import { intro, text, outro, log } from "@clack/prompts";
+intro("@typecharts posthog type generation");
 
 async function generate() {
   if (!posthogToken) {
@@ -156,12 +158,12 @@ async function generate() {
   }
   const data = await fetchAllEvents();
   const events: PostHogEvent[] = [];
-  console.log(
+  log.step(
     `Starting generation of TypeScript file for ${data.results.length} events...`
   );
   for await (const event of data.results) {
     const definitions = await fetchAllPropertiesOfEvent(event.name);
-    console.log(
+    log.info(
       `Fetched ${definitions.results.length} properties for event ${event.name}`
     );
     events.push({

@@ -1,6 +1,6 @@
 import { DashboardExample } from "./dashboard";
 import { PostHog } from "@typecharts/posthog";
-import { Chart } from "@typecharts/next";
+import { LineChart } from "@typecharts/react";
 import type { PostHogEvents } from "~/data/events";
 
 export default async function DashboardSSR() {
@@ -43,5 +43,5 @@ export default async function DashboardSSR() {
       breakdownBy: "Answer Overflow Account Id",
     });
 
-  return <DashboardExample largeCard={<Chart {...data} />} />;
+  return <DashboardExample largeCard={<LineChart {...data} />} />;
 }
