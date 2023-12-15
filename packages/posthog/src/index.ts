@@ -1,4 +1,9 @@
-import { ChartType, Chart } from "@typecharts/core";
+import {
+  ChartType,
+  Chart,
+  TimeSeriesChart,
+  DefaultDataKeyForChartType,
+} from "@typecharts/core";
 
 const mathTypes = [
   "total",
@@ -88,7 +93,10 @@ type OmitStringUnion<T, U extends T> = T extends U ? never : T;
 
 type IsUnion<T, B = T> = T extends B ? ([B] extends [T] ? false : true) : never;
 
-type PostHogExecuteOptions<PropertyNames extends string> = {
+type PostHogExecuteOptions<
+  PropertyNames extends string,
+  DataIndex extends string,
+> = {
   groupBy: Interval;
   filterMatch?: "all" | "any";
   type: IsUnion<PropertyNames> extends true
@@ -96,6 +104,7 @@ type PostHogExecuteOptions<PropertyNames extends string> = {
     : ChartType;
   breakdownBy?: PropertyNames;
   compareToPreviousPeriod?: boolean;
+  dataIndex?: DataIndex;
 };
 
 type PostHogConfig = {
@@ -126,6 +135,44 @@ export type TrendAPIResponse<ResultType = TrendResult[]> = {
   timezone: string;
   next: string | null;
 };
+
+function trendsApiResponseToTimeseries<
+  Labels extends string,
+  DataKey extends string,
+>(
+  input: TrendAPIResponse,
+  series: {
+    name: string;
+    label?: string;
+  }[],
+  dataKey: DataKey = "date" as DataKey
+): TimeSeriesChart<Labels, DataKey> {
+  const output: TimeSeriesChart<Labels, DataKey>["data"] = new Array(
+    input.result.length
+  ) as TimeSeriesChart<Labels, DataKey>["data"];
+  input.result.forEach((result, resultIndex) => {
+    result.data.forEach((value, i) => {
+      const entry = output[i];
+      const date = result.labels[i];
+      const label = series[resultIndex]?.label ?? result.label;
+      if (!date) {
+        return;
+      }
+      if (!entry) {
+        output[i] = {
+          [dataKey]: date,
+          [label as Labels]: value,
+        } as TimeSeriesChart<Labels, DataKey>["data"][number];
+      } else {
+        entry[label as Labels] = value.toString();
+      }
+    });
+  });
+  return {
+    data: output,
+    dataKey,
+  };
+}
 
 export function toParams(
   obj: Record<string, any>,
@@ -285,17 +332,19 @@ class PostHogQuery<
   }
 
   async execute<
+    const DataKey extends string,
     ExecutionOptions extends PostHogExecuteOptions<
-      Events[Series["name"]]["properties"][number]["name"]
+      Events[Series["name"]]["properties"][number]["name"],
+      DataKey
     >,
-  >(
-    options: ExecutionOptions
-  ): Promise<
-    Chart<
+    Output extends Chart<
       ExecutionOptions["type"],
-      AllLabelsOrNames<Series["name"], Events, Series>
-    >
-  > {
+      AllLabelsOrNames<Series["name"], Events, Series>,
+      ExecutionOptions["dataIndex"] extends string
+        ? ExecutionOptions["dataIndex"]
+        : DefaultDataKeyForChartType<ExecutionOptions["type"]>
+    >,
+  >(options: ExecutionOptions): Promise<Output> {
     const reqData: PostHogInsightTrendParams = {
       insight: "TRENDS",
       refresh: false,
@@ -318,83 +367,59 @@ class PostHogQuery<
     };
     const encodedQueryString = toParams(reqData);
     const url = `https://app.posthog.com/api/projects/${this.config.projectId}/insights/trend/?${encodedQueryString}`;
-    const data = await fetch(url, {
+    const fetchResponse = await fetch(url, {
       headers: {
         Authorization: `Bearer ${this.config.apiKey}`,
       },
       method: "GET",
     });
-    if (!data.ok) {
+    if (!fetchResponse.ok) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      const text = await data.json();
+      const text = await fetchResponse.json();
       throw new Error(
-        `Failed to fetch data: ${data.statusText} ${JSON.stringify(text)}`
+        `Failed to fetch data: ${fetchResponse.statusText} ${JSON.stringify(
+          text
+        )}`
       );
     }
-    const json = (await data.json()) as TrendAPIResponse;
-    return json as unknown as Chart<
-      ExecutionOptions["type"],
-      AllLabelsOrNames<Series["name"], Events, Series>
-    >;
-    // switch (options.type) {
-    //   case "bar":
-    //   case "area":
-    //   case "cumulative-line":
-    //   case "line": {
-    //     const output: Chart<
-    //       ExecutionOptions["type"],
-    //       AllLabelsOrNames<Series["name"], Events, Series>
-    //     >["data"] = new Array(json.result.length);
-    //     json.result.forEach((result, resultIndex) => {
-    //       result.data.forEach((value, index) => {
-    //         const entry = output[index];
-    //         const date = result.labels[index];
-    //         const label = this.series[resultIndex]?.label ?? result.label;
-    //         if (!date) {
-    //           return;
-    //         }
-    //         if (!entry) {
-    //           output[index] = {
-    //             date: date,
-    //             [label]: value,
-    //           };
-    //         } else {
-    //           entry[label] = value;
-    //         }
-    //       });
-    //     });
-    //     return {
-    //       data: output,
-    //       type: "pie",
-    //     };
-    //   }
-    //   case "pie": {
-    //     const output: PieChart<G>["data"] = [];
-    //     json.result.forEach((result, resultIndex) => {
-    //       output.push({
-    //         label: this.series[resultIndex]?.label ?? result.label,
-    //         value: result.aggregated_value,
-    //       });
-    //     });
-    //     return {
-    //       data: output,
-    //       type: options.type,
-    //     };
-    //   }
-    //   case "number": {
-    //     const value = json.result[0]?.aggregated_value ?? 0;
+    const json = (await fetchResponse.json()) as TrendAPIResponse;
+    let output: Output;
+    switch (options.type) {
+      case "bar":
+      case "area":
+      case "cumulative-line":
+      case "line": {
+        output = trendsApiResponseToTimeseries(json, this.series) as Output;
+        break;
+      }
+      //   case "pie": {
+      //     const output: PieChart<G>["data"] = [];
+      //     json.result.forEach((result, resultIndex) => {
+      //       output.push({
+      //         label: this.series[resultIndex]?.label ?? result.label,
+      //         value: result.aggregated_value,
+      //       });
+      //     });
+      //     return {
+      //       data: output,
+      //       type: options.type,
+      //     };
+      //   }
+      //   case "number": {
+      //     const value = json.result[0]?.aggregated_value ?? 0;
 
-    //     return {
-    //       data: {
-    //         label: this.series[0]?.label ?? json.result[0]?.label ?? "",
-    //         value,
-    //       },
-    //       type: options.type,
-    //     };
-    //   }
-    //   default:
-    //     throw new Error(`Unsupported type: ${options.type}`);
-    // }
+      //     return {
+      //       data: {
+      //         label: this.series[0]?.label ?? json.result[0]?.label ?? "",
+      //         value,
+      //       },
+      //       type: options.type,
+      //     };
+      //   }
+      default:
+        throw new Error(`Unsupported type: ${options.type}`);
+    }
+    return output;
   }
 }
 

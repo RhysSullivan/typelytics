@@ -5,13 +5,13 @@ import {
   DonutChartProps as TremorPieChartProps,
 } from "@tremor/react";
 
-export type PieChartProps<Labels extends string> = {
-  data: PieChart<Labels>["data"];
+export type PieChartProps<Labels extends string, DataKey extends string> = {
+  data: PieChart<Labels, DataKey>["data"];
   category?: Labels;
 } & Omit<TremorPieChartProps, "index" | "data" | "category">;
 
-export function PieChart<const Labels extends string>(
-  props: PieChartProps<Labels>
+export function PieChart<const Labels extends string, DataKey extends string>(
+  props: PieChartProps<Labels, DataKey>
 ) {
   return (
     <TremorPieChart
