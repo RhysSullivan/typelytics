@@ -10,7 +10,7 @@
     "type": "git",
     "url": "https://github.com/rhyssullivan/typecharts",
     "directory": "packages/core"
-  },  
+  },
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
