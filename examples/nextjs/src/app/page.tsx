@@ -9,38 +9,10 @@ export default async function DashboardSSR() {
     .query()
     .addSeries("$pageview", {
       sampling: "total",
-      where: {
-        filters: {
-          compare: "equals",
-          name: "$search_engine",
-          value: "/about",
-        },
-        match: "all",
-      },
-    })
-    .addSeries("Asked Question", {
-      sampling: "dau",
-    })
-    .addFilterGroup({
-      match: "all",
-      filters: {
-        name: "$current_url",
-        compare: "equals",
-        value: "US",
-      },
-    })
-    .addFilterGroup({
-      match: "all",
-      filters: {
-        compare: "equals",
-        name: "$pathname",
-        value: "/about",
-      },
     })
     .execute({
       groupBy: "day",
       type: "line",
-      breakdownBy: "Answer Overflow Account Id",
     });
 
   return <DashboardExample largeCard={<LineChart {...data} />} />;

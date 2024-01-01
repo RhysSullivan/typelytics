@@ -8,7 +8,7 @@ export default function Home() {
   return (
     <DocsLayout
       tree={tree}
-      nav={{ title: "My App" }}
+      nav={{ title: "typecharts" }}
       sidebar={{
         enabled: false,
       }}
