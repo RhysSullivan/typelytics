@@ -8,6 +8,6 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "fixed": [["@typecharts/core", "@typecharts/posthog-generator", "@typecharts/posthog", "@typecharts/react"]],
+  "fixed": [["@typecharts/core", "@typecharts/posthog-generator", "@typecharts/posthog", "@typecharts/tremor"]],
   "ignore": ["@typecharts/nextjs-example", "@typecharts/docs"]
 }

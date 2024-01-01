@@ -8,10 +8,19 @@ export default function Home() {
   return (
     <DocsLayout
       tree={tree}
-      nav={{ title: "typecharts" }}
+      nav={{
+        title: "typecharts",
+        githubUrl: "https://github.com/RhysSullivan/typecharts",
+      }}
       sidebar={{
         enabled: false,
       }}
+      links={[
+        {
+          url: "/docs",
+          text: "Docs",
+        },
+      ]}
     >
       <main className="my-6 max-w-7xl flex flex-col px-4 mx-auto items-center">
         <div className="w-full max-w-5xl">

@@ -15,7 +15,7 @@
     "@t3-oss/env-nextjs": "^0.7.1",
     "@tremor/react": "^3.11.1",
     "@typecharts/posthog": "0.2.0",
-    "@typecharts/react": "0.2.0",
+    "@typecharts/tremor": "0.2.0",
     "dotenv-cli": "^7.3.0",
     "next": "14.0.4",
     "react": "18.2.0",

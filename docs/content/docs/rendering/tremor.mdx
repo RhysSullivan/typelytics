@@ -5,11 +5,49 @@ description: Your first document
 
 ## Setup
 
-<Cards>
-  <Card
-    title="Install tremor"
-    href="https://www.tremor.so/docs/getting-started/installation"
-  />
-</Cards>
+import { Step, Steps } from "next-docs-ui/components/steps";
+
+<Steps>
+  <Step>
+  {/*  */}
+  ### Install Tremor
+
+[Install Tremor](https://www.tremor.so/docs/getting-started/installation)
+
+  </Step>
+
+  <Step>
+  {/*  */}
+  ### Install @typecharts/tremor
+
+```bash
+npm install @typecharts/tremor
+
+yarn add @typecharts/tremor
+
+pnpm add @typecharts/tremor
+```
+
+  </Step>
+
+</Steps>
 
 ## Usage
+
+You can either use an individual chart component or a generic chart component which will render any data in the correct format.
+
+### Individual chart components
+
+```ts
+import { LineChart } from "@typecharts/tremor";
+
+<LineChart ...{props}/>
+```
+
+### Generic chart component
+
+```ts
+import { Chart } from "@typecharts/tremor";
+
+<Chart type="line" ...{props}/>
+```

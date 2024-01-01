@@ -1,6 +1,6 @@
 import { DashboardExample } from "./dashboard";
 import { PostHog } from "@typecharts/posthog";
-import { LineChart } from "@typecharts/react";
+import { LineChart } from "@typecharts/tremor";
 import type { PostHogEvents } from "~/data/events";
 
 export default async function DashboardSSR() {
