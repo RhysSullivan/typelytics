@@ -51,3 +51,19 @@ import { Chart } from "@typecharts/tremor";
 
 <Chart type="line" ...{props}/>
 ```
+
+### With Query
+
+```ts
+const data = await posthog
+    .query()
+    .addSeries("$pageview", {
+      sampling: "total",
+    })
+    .execute({
+      groupBy: "day",
+      type: "line",
+    });
+
+return <Chart {...data} />
+```

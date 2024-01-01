@@ -4,10 +4,6 @@
     "*.ts",
     "src",
     "test",
-    "../posthog-generator/src/posthog",
-    "../posthog-generator/src/bin.ts",
-    "../posthog-generator/src/generate.ts",
-    "../posthog-generator/src/types.ts"
   ],
   "exclude": [
     "dist"

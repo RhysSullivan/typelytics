@@ -13,7 +13,8 @@ export default async function DashboardSSR() {
     .execute({
       groupBy: "day",
       type: "line",
+      dataIndex: "timestamp",
     });
 
-  return <DashboardExample largeCard={<LineChart {...data} />} />;
+  return <DashboardExample largeCard={<Chart {...data} />} />;
 }

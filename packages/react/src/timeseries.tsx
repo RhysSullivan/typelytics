@@ -51,6 +51,7 @@ export type BarChartProps<
   Key extends string,
 > = TimeSeriesChartProps<Labels, Key> &
   Omit<TremorBarChartProps, "data" | "categories">;
+
 export function BarChart<const Labels extends string, const Key extends string>(
   props: BarChartProps<Labels, Key>
 ) {

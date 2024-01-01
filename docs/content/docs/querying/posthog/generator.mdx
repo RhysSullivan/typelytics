@@ -3,22 +3,83 @@ title: Generator
 description: Your first document
 ---
 
-Hey there!
+import { Step, Steps } from "next-docs-ui/components/steps";
 
-## Heading
+<Steps>
+  <Step>
 
-<Cards>
-  <Card title="Learn more about Tremor" href="https://www.tremor.so/" />
-  <Card
-    title="Learn more about Next Docs"
-    href="https://next-docs-zeta.vercel.app"
-  />
-</Cards>
+### Run the generator cli command
 
-### Heading
-
-```js
-console.log("Hello World");
+```bash
+npx @typecharts/posthog-generator
 ```
 
-#### Heading
+  </Step>
+  <Step>
+
+### Follow the CLI directions
+
+```bash
+┌  @typecharts posthog type generation
+│
+◇  No value for POSTHOG_API_KEY found in environment variables. Please enter your PostHog API key
+│  phk_...
+│
+◇  No value for POSTHOG_PROJECT_ID found in environment variables. Please enter your PostHog project ID
+│  id
+│
+◇  Starting generation of TypeScript file for num events...
+│
+│
+●  Fetched 60 properties for event $autocapture
+│
+●  Fetched 19 properties for event $groupidentify
+│
+●  ...
+│
+└  Generating output file for 36 events...
+```
+
+    </Step>
+    <Step>
+
+### Commit the generated file
+
+After running the generation command, you will have a file with all of your events, it will look similar to the following:
+
+```ts
+const events = {
+  $pageleave: {
+    name: "$pageleave",
+    properties: [
+      {
+        name: "fbclid",
+        type: "String",
+      },
+      {
+        name: "$active_feature_flags",
+        type: null,
+      },
+    ],
+  },
+  $pageview: {
+    name: "$pageview",
+    properties: [
+      {
+        name: "fbclid",
+        type: "String",
+      },
+      {
+        name: "$active_feature_flags",
+        type: null,
+      },
+    ],
+  },
+};
+```
+
+This file is safe to commit to your repository and should contain no secrets.
+
+  </Step>
+
+</Steps>

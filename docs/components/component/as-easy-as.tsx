@@ -9,7 +9,8 @@ import {
   CardContent,
   Card,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
+import Link from "next/link";
 
 export function AsEasyAs() {
   return (
@@ -48,7 +49,14 @@ export function AsEasyAs() {
           </Card>
         </div>
         <div className="text-center mt-6">
-          <Button>Get started</Button>
+          <Link
+            className={`${buttonVariants({
+              variant: "default",
+            })} h-14 w-42 text-base`}
+            href="/docs"
+          >
+            Get Started
+          </Link>
         </div>
       </div>
     </section>

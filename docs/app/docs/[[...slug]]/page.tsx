@@ -1,10 +1,10 @@
-import { Content } from './content';
-import { getPage } from '@/app/source';
-import { allDocs } from 'contentlayer/generated';
-import type { Metadata } from 'next';
-import { DocsPage, DocsBody } from 'next-docs-ui/page';
-import { getTableOfContents } from 'next-docs-zeta/server';
-import { notFound } from 'next/navigation';
+import { Content } from "./content";
+import { getPage } from "@/app/source";
+import { allDocs } from "contentlayer/generated";
+import type { Metadata } from "next";
+import { DocsPage, DocsBody } from "next-docs-ui/page";
+import { getTableOfContents } from "next-docs-zeta/server";
+import { notFound } from "next/navigation";
 
 export default async function Page({
   params,
@@ -29,9 +29,10 @@ export default async function Page({
   );
 }
 
+// eslint-disable-next-line @typescript-eslint/require-await
 export async function generateStaticParams(): Promise<{ slug: string[] }[]> {
   return allDocs.map((page) => ({
-    slug: page.slug.split('/'),
+    slug: page.slug.split("/"),
   }));
 }
 
