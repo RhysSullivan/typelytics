@@ -16,5 +16,5 @@ export default async function DashboardSSR() {
       dataIndex: "timestamp",
     });
 
-  return <DashboardExample largeCard={<Chart {...data} />} />;
+  return <DashboardExample largeCard={<LineChart {...data} />} />;
 }

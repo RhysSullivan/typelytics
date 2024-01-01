@@ -175,6 +175,7 @@ function trendsApiResponseToTimeseries<
 }
 
 export function toParams(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   obj: Record<string, any>,
   explodeArrays = false
 ): string {
@@ -182,10 +183,8 @@ export function toParams(
     return "";
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function handleVal(val: any): string {
-    // if (dayjs.isDayjs(val)) {
-    //   return encodeURIComponent(val.format("YYYY-MM-DD"));
-    // }
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     val = typeof val === "object" ? JSON.stringify(val) : val;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
@@ -337,13 +336,12 @@ class PostHogQuery<
       Events[Series["name"]]["properties"][number]["name"],
       DataKey
     >,
-    Output extends Chart<
-      ExecutionOptions["type"],
-      AllLabelsOrNames<Series["name"], Events, Series>,
-      ExecutionOptions["dataIndex"] extends string
-        ? ExecutionOptions["dataIndex"]
-        : DefaultDataKeyForChartType<ExecutionOptions["type"]>
-    >,
+    ChartType extends ExecutionOptions["type"],
+    Labels extends AllLabelsOrNames<Series["name"], Events, Series>,
+    A extends ExecutionOptions["dataIndex"] extends string
+      ? ExecutionOptions["dataIndex"]
+      : DefaultDataKeyForChartType<ExecutionOptions["type"]>,
+    Output extends Chart<ChartType, Labels, A>,
   >(options: ExecutionOptions): Promise<Output> {
     const reqData: PostHogInsightTrendParams = {
       insight: "TRENDS",

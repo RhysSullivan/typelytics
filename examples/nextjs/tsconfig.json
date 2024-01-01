@@ -47,7 +47,6 @@
     "**/*.cjs",
     "**/*.js",
     ".next/types/**/*.ts",
-    "../../packages/react/src/chart.tsx"
   ],
   "exclude": [
     "node_modules"

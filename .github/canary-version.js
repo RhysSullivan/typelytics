@@ -5,7 +5,7 @@ const pkgJsonPaths = [
   "packages/core/package.json",
   "packages/posthog/package.json",
   "packages/posthog-generator/package.json",
-  "packages/react/package.json",
+  "packages/tremor/package.json",
   "packages/next/package.json",
 ];
 
