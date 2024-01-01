@@ -32,7 +32,7 @@ export function AsEasyAs() {
           <Card className="flex flex-col">
             <CardHeader>
               <CardDescription>Step 2</CardDescription>
-              <CardTitle>Query your analytics provider</CardTitle>
+              <CardTitle>Query your analytics provider in code</CardTitle>
             </CardHeader>
             <CardContent>
               <DatabaseIcon className="h-12 w-12 mb-4 mx-auto text-gray-900 dark:text-gray-50" />
