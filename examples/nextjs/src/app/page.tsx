@@ -16,7 +16,7 @@ export default async function DashboardSSR() {
     })
     .execute({
       groupBy: "day",
-      type: "bar",
+      type: "bar-total",
     });
 
   return <DashboardExample largeCard={<Chart {...data} />} />;

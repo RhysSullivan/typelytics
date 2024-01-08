@@ -65,17 +65,26 @@ export type PieChart<
   }[];
 };
 
+export type BarTotalChart<T extends string> = {
+  data: {
+    name: T;
+    value: number;
+  }[];
+};
+
 type ChartInternal<
   Type extends ChartType,
   Labels extends string,
   DataKey extends string = DefaultDataKeyForChartType[ChartType],
 > = Type extends TimeSeriesChartTypes
   ? TimeSeriesChart<Labels, DataKey>
-  : Type extends "number"
+  : Type extends NumberChartType
     ? NumberChart<DataKey>
-    : Type extends "pie"
+    : Type extends PieChartType
       ? PieChart<Labels, DataKey>
-      : never;
+      : Type extends BarTotalChartType
+        ? BarTotalChart<Labels>
+        : never;
 
 export type Chart<
   Type extends ChartType,

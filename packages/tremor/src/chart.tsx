@@ -20,7 +20,12 @@ import {
   BarChartProps,
   AreaChartProps,
 } from "./timeseries";
-import { PieChart, PieChartProps } from "./pie";
+import {
+  BarTotalChart,
+  BarTotalChartProps,
+  PieChart,
+  PieChartProps,
+} from "./pie";
 
 export function Chart<
   const Type extends ChartType,
@@ -35,13 +40,15 @@ export function Chart<
         ? BarChartProps<Labels, DataKey>
         : Type extends BarTotalChartType
           ? BarChartProps<Labels, DataKey>
-          : Type extends AreaChartType
-            ? AreaChartProps<Labels, DataKey>
-            : Type extends PieChartType
-              ? PieChartProps<Labels, DataKey>
-              : Type extends NumberChartType
-                ? NumberChart<DataKey>
-                : `!!! ${Type} chart is unsupported !!!`) & { type: Type }
+          : Type extends BarTotalChartType
+            ? BarTotalChartProps<Labels>
+            : Type extends AreaChartType
+              ? AreaChartProps<Labels, DataKey>
+              : Type extends PieChartType
+                ? PieChartProps<Labels, DataKey>
+                : Type extends NumberChartType
+                  ? NumberChart<DataKey>
+                  : `!!! ${Type} chart is unsupported !!!`) & { type: Type }
 ) {
   const type = props.type;
   switch (type) {
@@ -51,6 +58,11 @@ export function Chart<
     }
     case "bar": {
       return <BarChart {...(props as BarChartProps<Labels, DataKey>)} />;
+    }
+    case "bar-total": {
+      return (
+        <BarTotalChart {...(props as unknown as BarTotalChartProps<Labels>)} />
+      );
     }
     case "area": {
       return <AreaChart {...(props as AreaChartProps<Labels, DataKey>)} />;

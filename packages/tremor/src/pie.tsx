@@ -1,8 +1,10 @@
 "use client";
-import { PieChart } from "@typecharts/core";
+import { PieChart, BarTotalChart } from "@typecharts/core";
 import {
   DonutChart as TremorPieChart,
   DonutChartProps as TremorPieChartProps,
+  BarListProps as TremorBarTotalChartProps,
+  BarList as TremorBarTotalChart,
 } from "@tremor/react";
 
 export type PieChartProps<Labels extends string, DataKey extends string> = {
@@ -21,4 +23,15 @@ export function PieChart<const Labels extends string, DataKey extends string>(
       {...props}
     />
   );
+}
+
+export type BarTotalChartProps<Labels extends string> = {
+  data: BarTotalChart<Labels>["data"];
+  category?: Labels;
+} & Omit<TremorBarTotalChartProps, "index" | "data" | "category">;
+
+export function BarTotalChart<const Labels extends string>(
+  props: BarTotalChartProps<Labels>
+) {
+  return <TremorBarTotalChart {...props} />;
 }

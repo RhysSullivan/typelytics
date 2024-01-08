@@ -5,6 +5,7 @@ import {
   DefaultDataKeyForChartType,
   PieChart,
   defaultChartDataKeys,
+  BarTotalChart,
 } from "@typecharts/core";
 
 const mathTypes = [
@@ -337,8 +338,7 @@ class PostHogQuery<
     A extends ExecutionOptions["dataIndex"] extends string
       ? ExecutionOptions["dataIndex"]
       : DefaultDataKeyForChartType[ExecutionOptions["type"]],
-    Output extends Chart<ChartType, Labels, A> &
-      Required<Pick<Chart<ChartType, Labels, A>, "dataKey">>,
+    Output extends Chart<ChartType, Labels, A>,
   >(options: ExecutionOptions): Promise<Output> {
     const reqData: PostHogInsightTrendParams = {
       insight: "TRENDS",
@@ -387,6 +387,19 @@ class PostHogQuery<
         output = trendsApiResponseToTimeseries(json, this.series) as Output;
         break;
       }
+      case "bar-total": {
+        const agg: BarTotalChart<Labels>["data"] = [];
+        json.result.forEach((result, resultIndex) => {
+          agg.push({
+            name: this.series[resultIndex]?.label ?? result.label,
+            value: result.aggregated_value,
+          } as BarTotalChart<Labels>["data"][number]);
+        });
+        output = {
+          data: agg,
+        } as Output;
+        break;
+      }
       case "pie": {
         const agg: PieChart<Labels, DataKey>["data"] = [];
         json.result.forEach((result, resultIndex) => {
@@ -398,7 +411,7 @@ class PostHogQuery<
         output = {
           data: agg,
           dataKey: options.dataIndex ?? defaultChartDataKeys[options.type],
-        } as Output;
+        } as unknown as Output;
         break;
       }
       case "number": {
@@ -410,7 +423,7 @@ class PostHogQuery<
             json.result[0]?.label ??
             defaultChartDataKeys[options.type],
           data: value,
-        } as Output;
+        } as unknown as Output;
         break;
       }
       default:
