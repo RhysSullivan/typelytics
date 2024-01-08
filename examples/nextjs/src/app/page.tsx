@@ -1,6 +1,6 @@
 import { DashboardExample } from "./dashboard";
 import { PostHog } from "@typecharts/posthog";
-import { BarChart, LineChart } from "@typecharts/tremor";
+import { Chart, AreaChart, BarChart, LineChart } from "@typecharts/tremor";
 import type { PostHogEvents } from "~/data/events";
 
 export default async function DashboardSSR() {
@@ -9,11 +9,15 @@ export default async function DashboardSSR() {
     .query()
     .addSeries("$pageview", {
       sampling: "total",
+      label: "Page View Count",
+    })
+    .addSeries("Community Page View", {
+      sampling: "dau",
     })
     .execute({
       groupBy: "day",
       type: "bar",
     });
 
-  return <DashboardExample largeCard={<LineChart {...data} />} />;
+  return <DashboardExample largeCard={<Chart {...data} />} />;
 }

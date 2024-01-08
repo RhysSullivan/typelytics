@@ -3,6 +3,8 @@ import {
   Chart,
   TimeSeriesChart,
   DefaultDataKeyForChartType,
+  PieChart,
+  defaultChartDataKeys,
 } from "@typecharts/core";
 
 const mathTypes = [
@@ -89,19 +91,13 @@ export type PostHogSeries<
 
 type Interval = "day" | "hour" | "week" | "month";
 
-type OmitStringUnion<T, U extends T> = T extends U ? never : T;
-
-type IsUnion<T, B = T> = T extends B ? ([B] extends [T] ? false : true) : never;
-
 type PostHogExecuteOptions<
   PropertyNames extends string,
   DataIndex extends string,
 > = {
   groupBy: Interval;
   filterMatch?: "all" | "any";
-  type: IsUnion<PropertyNames> extends true
-    ? OmitStringUnion<ChartType, "number">
-    : ChartType;
+  type: ChartType;
   breakdownBy?: PropertyNames;
   compareToPreviousPeriod?: boolean;
   dataIndex?: DataIndex;
@@ -391,33 +387,36 @@ class PostHogQuery<
         output = trendsApiResponseToTimeseries(json, this.series) as Output;
         break;
       }
-      //   case "pie": {
-      //     const output: PieChart<G>["data"] = [];
-      //     json.result.forEach((result, resultIndex) => {
-      //       output.push({
-      //         label: this.series[resultIndex]?.label ?? result.label,
-      //         value: result.aggregated_value,
-      //       });
-      //     });
-      //     return {
-      //       data: output,
-      //       type: options.type,
-      //     };
-      //   }
-      //   case "number": {
-      //     const value = json.result[0]?.aggregated_value ?? 0;
+      case "pie": {
+        const agg: PieChart<Labels, DataKey>["data"] = [];
+        json.result.forEach((result, resultIndex) => {
+          agg.push({
+            label: this.series[resultIndex]?.label ?? result.label,
+            value: result.aggregated_value,
+          } as PieChart<Labels, DataKey>["data"][number]);
+        });
+        output = {
+          data: agg,
+          dataKey: options.dataIndex ?? defaultChartDataKeys[options.type],
+        } as Output;
+        break;
+      }
+      case "number": {
+        const value = json.result[0]?.aggregated_value ?? 0;
 
-      //     return {
-      //       data: {
-      //         label: this.series[0]?.label ?? json.result[0]?.label ?? "",
-      //         value,
-      //       },
-      //       type: options.type,
-      //     };
-      //   }
+        output = {
+          dataKey:
+            this.series[0]?.label ??
+            json.result[0]?.label ??
+            defaultChartDataKeys[options.type],
+          data: value,
+        } as Output;
+        break;
+      }
       default:
         throw new Error(`Unsupported type: ${options.type}`);
     }
+    output["type"] = options.type as ChartType;
     return output;
   }
 }
