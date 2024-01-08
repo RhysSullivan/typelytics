@@ -19,5 +19,17 @@ export default async function DashboardSSR() {
       type: "bar-total",
     });
 
-  return <DashboardExample largeCard={<Chart {...data} />} />;
+  return (
+    <DashboardExample
+      largeCard={
+        <Chart
+          type="bar-total"
+          data={data.data.map((d) => ({
+            ...d,
+            href: `/community/${d.name}`,
+          }))}
+        />
+      }
+    />
+  );
 }

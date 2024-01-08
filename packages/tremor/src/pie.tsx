@@ -26,8 +26,11 @@ export function PieChart<const Labels extends string, DataKey extends string>(
 }
 
 export type BarTotalChartProps<Labels extends string> = {
-  data: BarTotalChart<Labels>["data"];
-  category?: Labels;
+  data: (BarTotalChart<Labels>["data"][number] &
+    Omit<
+      TremorBarTotalChartProps["data"][number],
+      keyof BarTotalChart<Labels>["data"][number]
+    >)[];
 } & Omit<TremorBarTotalChartProps, "index" | "data" | "category">;
 
 export function BarTotalChart<const Labels extends string>(

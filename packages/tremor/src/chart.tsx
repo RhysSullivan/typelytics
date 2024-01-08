@@ -39,16 +39,14 @@ export function Chart<
       : Type extends BarChartType
         ? BarChartProps<Labels, DataKey>
         : Type extends BarTotalChartType
-          ? BarChartProps<Labels, DataKey>
-          : Type extends BarTotalChartType
-            ? BarTotalChartProps<Labels>
-            : Type extends AreaChartType
-              ? AreaChartProps<Labels, DataKey>
-              : Type extends PieChartType
-                ? PieChartProps<Labels, DataKey>
-                : Type extends NumberChartType
-                  ? NumberChart<DataKey>
-                  : `!!! ${Type} chart is unsupported !!!`) & { type: Type }
+          ? BarTotalChartProps<Labels>
+          : Type extends AreaChartType
+            ? AreaChartProps<Labels, DataKey>
+            : Type extends PieChartType
+              ? PieChartProps<Labels, DataKey>
+              : Type extends NumberChartType
+                ? NumberChart<DataKey>
+                : `!!! ${Type} chart is unsupported !!!`) & { type: Type }
 ) {
   const type = props.type;
   switch (type) {
