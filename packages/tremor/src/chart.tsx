@@ -31,12 +31,8 @@ import {
   BarChartProps,
   AreaChartProps,
 } from "./timeseries";
-import {
-  BarTotalChart,
-  BarTotalChartProps,
-  PieChart,
-  PieChartProps,
-} from "./pie";
+import { PieChart, PieChartProps } from "./pie";
+import { BarTotalChart, BarTotalChartProps } from "./bar-total";
 
 export function Chart<
   const Type extends ChartType,

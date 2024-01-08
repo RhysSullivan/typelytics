@@ -16,9 +16,21 @@ export default async function DashboardSSR() {
     })
     .execute({
       groupBy: "day",
-      type: "area",
+      type: "bar-total",
       dataIndex: "time",
     });
 
-  return <DashboardExample largeCard={<Chart {...data} />} />;
+  return (
+    <DashboardExample
+      largeCard={
+        <Chart
+          decorations={{
+            "Community Page View": { href: "https://google.com", color: "red" },
+            "Hello!": { color: "amber" },
+          }}
+          {...data}
+        />
+      }
+    />
+  );
 }
