@@ -72,6 +72,13 @@ export type BarTotalChart<T extends string> = {
   }[];
 };
 
+export type Table<T extends string> = {
+  data: {
+    name: T;
+    value: number;
+  }[];
+};
+
 type ChartInternal<
   Type extends ChartType,
   Labels extends string,
@@ -84,7 +91,9 @@ type ChartInternal<
       ? PieChart<Labels, DataKey>
       : Type extends BarTotalChartType
         ? BarTotalChart<Labels>
-        : never;
+        : Type extends TableChartType
+          ? Table<Labels>
+          : never;
 
 export type Chart<
   Type extends ChartType,

@@ -4,15 +4,15 @@
 
 ### Finish PostHog execute() function
 
-- Finish LineChartType
-- Finish BarChartType
-- Finish AreaChartType
-- Finish CumulativeLineChartType
-- Finish NumberChartType
-- Finish PieChartType
-- Finish BarTotalChartType
+- ~~Finish LineChartType~~
+- ~~Finish BarChartType~~
+- ~~Finish AreaChartType~~
+- ~~Finish CumulativeLineChartType~~
+- ~~Finish NumberChartType~~
+- ~~Finish PieChartType~~
+- ~~Finish BarTotalChartType~~
 - Finish TableChartType
-- SKIPPED ~~- Finish WorldChartType~~
+- Omit WorldChartType
 
 ### Finish react charts package
 
@@ -20,11 +20,11 @@
 - ~~Finish BarChartType~~
 - ~~Finish AreaChartType~~
 - ~~Finish CumulativeLineChartType~~
-- Finish NumberChartType
-- Finish PieChartType
-- Finish BarTotalChartType
+- ~~Finish NumberChartType~~
+- ~~Finish PieChartType~~
+- ~~Finish BarTotalChartType~~
 - Finish TableChartType
-- SKIPPED ~~- Finish WorldChartType~~
+- Omit WorldChartType
 
 ### Create generic <Chart/> component
 

@@ -1,5 +1,14 @@
 "use client";
-import { Metric, Text } from "@tremor/react";
+import {
+  Metric,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
+  Text,
+} from "@tremor/react";
 import {
   AreaChartType,
   BarChartType,
@@ -11,6 +20,8 @@ import {
   NumberChart,
   NumberChartType,
   PieChartType,
+  TableChartType,
+  Table as TypeChartsTable,
 } from "@typecharts/core";
 import {
   LineChart,
@@ -46,7 +57,9 @@ export function Chart<
               ? PieChartProps<Labels, DataKey>
               : Type extends NumberChartType
                 ? NumberChart<DataKey>
-                : `!!! ${Type} chart is unsupported !!!`) & { type: Type }
+                : Type extends TableChartType
+                  ? TypeChartsTable<Labels>
+                  : `!!! ${Type} chart is unsupported !!!`) & { type: Type }
 ) {
   const type = props.type;
   switch (type) {
@@ -58,9 +71,7 @@ export function Chart<
       return <BarChart {...(props as BarChartProps<Labels, DataKey>)} />;
     }
     case "bar-total": {
-      return (
-        <BarTotalChart {...(props as unknown as BarTotalChartProps<Labels>)} />
-      );
+      return <BarTotalChart {...(props as BarTotalChartProps<Labels>)} />;
     }
     case "area": {
       return <AreaChart {...(props as AreaChartProps<Labels, DataKey>)} />;
@@ -75,6 +86,28 @@ export function Chart<
           <Text>{args.dataKey}</Text>
           <Metric>{args.data}</Metric>
         </>
+      );
+    case "table":
+      const data = (props as TypeChartsTable<Labels>).data;
+      return (
+        <Table className="mt-5">
+          <TableHead>
+            <TableRow>
+              <TableHeaderCell>Name</TableHeaderCell>
+              <TableHeaderCell>Value</TableHeaderCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {data.map((item) => (
+              <TableRow key={item.name}>
+                <TableCell>{item.name}</TableCell>
+                <TableCell>
+                  <Text>{item.value}</Text>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       );
   }
   throw new Error(`Unknown chart type: ${type}`);

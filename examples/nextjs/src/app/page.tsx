@@ -9,27 +9,16 @@ export default async function DashboardSSR() {
     .query()
     .addSeries("$pageview", {
       sampling: "total",
-      label: "Page View Count",
+      label: "Hello!",
     })
     .addSeries("Community Page View", {
       sampling: "dau",
     })
     .execute({
       groupBy: "day",
-      type: "bar-total",
+      type: "area",
+      dataIndex: "time",
     });
 
-  return (
-    <DashboardExample
-      largeCard={
-        <Chart
-          type="bar-total"
-          data={data.data.map((d) => ({
-            ...d,
-            href: `/community/${d.name}`,
-          }))}
-        />
-      }
-    />
-  );
+  return <DashboardExample largeCard={<Chart {...data} />} />;
 }

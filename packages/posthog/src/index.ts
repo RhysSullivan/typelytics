@@ -6,6 +6,7 @@ import {
   PieChart,
   defaultChartDataKeys,
   BarTotalChart,
+  Table,
 } from "@typecharts/core";
 
 const mathTypes = [
@@ -423,6 +424,20 @@ class PostHogQuery<
             json.result[0]?.label ??
             defaultChartDataKeys[options.type],
           data: value,
+        } as unknown as Output;
+        break;
+      }
+      case "table": {
+        const agg: Table<Labels>["data"] = [];
+        json.result.forEach((result, resultIndex) => {
+          agg.push({
+            name: this.series[resultIndex]?.label ?? result.label,
+            value: result.aggregated_value,
+          } as Table<Labels>["data"][number]);
+        });
+        output = {
+          data: agg,
+          dataKey: options.dataIndex ?? defaultChartDataKeys[options.type],
         } as unknown as Output;
         break;
       }
