@@ -56,3 +56,5 @@ Thumbs.db
 
 # Contentlayer
 .contentlayer
+
+./packages/posthog-generator/events.ts

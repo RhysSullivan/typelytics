@@ -25,32 +25,43 @@ export type TimeSeriesChartTypes =
   | AreaChartType
   | CumulativeLineChartType;
 
-export type DefaultDataKeyForChartType<Type extends ChartType> =
-  Type extends TimeSeriesChartTypes
-    ? "date"
-    : Type extends "number"
-      ? "value"
-      : Type extends "pie"
-        ? "value"
-        : never;
+export const defaultChartDataKeys = {
+  line: "date",
+  bar: "date",
+  area: "date",
+  "cumulative-line": "date",
+  number: "value",
+  pie: "value",
+  "bar-total": "value",
+  table: "value",
+  world: "value",
+} as const;
+
+export type DefaultDataKeyForChartType = typeof defaultChartDataKeys;
 
 export type TimeSeriesChart<
   Entries extends string,
-  Key extends string = DefaultDataKeyForChartType<ChartType>,
+  Key extends string = DefaultDataKeyForChartType[ChartType],
 > = {
-  dataKey: Key;
+  dataKey?: Key;
   data: Record<Entries | Key, string>[];
 };
 
-export type NumberChart<Entries extends string, DataKey extends string> = {
-  dataKey: DataKey;
+export type NumberChart<
+  Entries extends string,
+  DataKey extends string = DefaultDataKeyForChartType[ChartType],
+> = {
+  dataKey?: DataKey;
   data: {
     label: Entries;
   } & Record<DataKey, number>;
 };
 
-export type PieChart<T extends string, DataKey extends string> = {
-  dataKey: DataKey;
+export type PieChart<
+  T extends string,
+  DataKey extends string = DefaultDataKeyForChartType[ChartType],
+> = {
+  dataKey?: DataKey;
   data: {
     label: T;
     value: number;
@@ -60,7 +71,7 @@ export type PieChart<T extends string, DataKey extends string> = {
 export type Chart<
   Type extends ChartType,
   Labels extends string,
-  DataKey extends string = DefaultDataKeyForChartType<Type>,
+  DataKey extends string = DefaultDataKeyForChartType[ChartType],
 > = Type extends TimeSeriesChartTypes
   ? TimeSeriesChart<Labels, DataKey>
   : Type extends "number"

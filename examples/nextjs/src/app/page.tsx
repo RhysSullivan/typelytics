@@ -1,6 +1,6 @@
 import { DashboardExample } from "./dashboard";
 import { PostHog } from "@typecharts/posthog";
-import { LineChart } from "@typecharts/tremor";
+import { BarChart, LineChart } from "@typecharts/tremor";
 import type { PostHogEvents } from "~/data/events";
 
 export default async function DashboardSSR() {
@@ -12,8 +12,7 @@ export default async function DashboardSSR() {
     })
     .execute({
       groupBy: "day",
-      type: "line",
-      dataIndex: "timestamp",
+      type: "bar",
     });
 
   return <DashboardExample largeCard={<LineChart {...data} />} />;

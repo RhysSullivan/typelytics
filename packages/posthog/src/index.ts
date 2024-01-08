@@ -340,8 +340,9 @@ class PostHogQuery<
     Labels extends AllLabelsOrNames<Series["name"], Events, Series>,
     A extends ExecutionOptions["dataIndex"] extends string
       ? ExecutionOptions["dataIndex"]
-      : DefaultDataKeyForChartType<ExecutionOptions["type"]>,
-    Output extends Chart<ChartType, Labels, A>,
+      : DefaultDataKeyForChartType[ExecutionOptions["type"]],
+    Output extends Chart<ChartType, Labels, A> &
+      Required<Pick<Chart<ChartType, Labels, A>, "dataKey">>,
   >(options: ExecutionOptions): Promise<Output> {
     const reqData: PostHogInsightTrendParams = {
       insight: "TRENDS",
