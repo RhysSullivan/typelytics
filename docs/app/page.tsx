@@ -3,7 +3,12 @@ import Link from "next/link";
 import { AsEasyAs } from "../components/component/as-easy-as";
 import { DocsLayout } from "next-docs-ui/layout";
 import { tree } from "./source";
-
+import { Metadata } from "next";
+export const metadata = {
+  icons: ["favicon.png"],
+  title: "typecharts",
+  description: "typesafe analytics from query to render",
+} satisfies Metadata;
 export default function Home() {
   return (
     <DocsLayout

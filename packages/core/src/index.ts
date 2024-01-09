@@ -73,10 +73,10 @@ export type BarTotalChart<T extends string> = {
 };
 
 export type Table<T extends string> = {
-  data: {
+  data: ({
     name: T;
-    value: number;
-  }[];
+    value: string;
+  } & Record<string, string>)[];
 };
 
 type ChartInternal<

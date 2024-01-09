@@ -44,5 +44,6 @@ export function generateMetadata({ params }: { params: { slug?: string[] } }) {
   return {
     title: page.title,
     description: page.description,
+    icons: ["./favicon.ico"],
   } satisfies Metadata;
 }

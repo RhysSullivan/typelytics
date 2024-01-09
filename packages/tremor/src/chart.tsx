@@ -85,21 +85,22 @@ export function Chart<
       );
     case "table":
       const data = (props as TypeChartsTable<Labels>).data;
+      const labels = new Set(Object.keys(data[0] ?? {}));
       return (
         <Table className="mt-5">
           <TableHead>
             <TableRow>
-              <TableHeaderCell>Name</TableHeaderCell>
-              <TableHeaderCell>Value</TableHeaderCell>
+              {Array.from(labels).map((label) => (
+                <TableHeaderCell key={label}>{label}</TableHeaderCell>
+              ))}
             </TableRow>
           </TableHead>
           <TableBody>
             {data.map((item) => (
-              <TableRow key={item.name}>
-                <TableCell>{item.name}</TableCell>
-                <TableCell>
-                  <Text>{item.value}</Text>
-                </TableCell>
+              <TableRow key={item.label}>
+                {Object.keys(item).map((key) => (
+                  <TableCell>{item[key]}</TableCell>
+                ))}
               </TableRow>
             ))}
           </TableBody>

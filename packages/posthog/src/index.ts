@@ -103,6 +103,7 @@ type PostHogExecuteOptions<
   breakdownBy?: PropertyNames;
   compareToPreviousPeriod?: boolean;
   dataIndex?: DataIndex;
+  excludeOther?: boolean;
 };
 
 type PostHogConfig = {
@@ -115,6 +116,9 @@ type TrendResult = {
   count: number;
   data: number[];
   days: string[];
+  action: {
+    id: string;
+  };
   dates?: string[];
   label: string;
   labels: string[];
@@ -146,7 +150,7 @@ function trendsApiResponseToTimeseries<
   dataKey: DataKey = "date" as DataKey
 ): TimeSeriesChart<Labels, DataKey> {
   const output: TimeSeriesChart<Labels, DataKey>["data"] = new Array(
-    input.result.length
+    input.result[0]?.days.length
   ) as TimeSeriesChart<Labels, DataKey>["data"];
   input.result.forEach((result, resultIndex) => {
     result.data.forEach((value, i) => {
@@ -248,6 +252,9 @@ type PostHogInsightTrendParams = {
     math: PostHogSamplingOptions;
   }[];
   formula?: string;
+  breakdown_type: "event";
+  breakdown?: string;
+  breakdown_hide_other_aggregation?: boolean;
   interval: Interval;
   display: PostHogDisplayType;
 };
@@ -339,7 +346,11 @@ class PostHogQuery<
     A extends ExecutionOptions["dataIndex"] extends string
       ? ExecutionOptions["dataIndex"]
       : DefaultDataKeyForChartType[ExecutionOptions["type"]],
-    Output extends Chart<ChartType, Labels, A>,
+    Output extends Chart<
+      ChartType,
+      ExecutionOptions["breakdownBy"] extends undefined ? Labels : string,
+      A
+    >,
   >(options: ExecutionOptions): Promise<Output> {
     const reqData: PostHogInsightTrendParams = {
       insight: "TRENDS",
@@ -357,6 +368,9 @@ class PostHogQuery<
         type: "OR",
         values: [],
       },
+      breakdown_type: "event",
+      breakdown: options.breakdownBy,
+      breakdown_hide_other_aggregation: options.excludeOther,
       date_from: "-7d",
       display: chartTypeToPostHogType[options.type],
       interval: options.groupBy,
@@ -429,16 +443,25 @@ class PostHogQuery<
       }
       case "table": {
         const agg: Table<Labels>["data"] = [];
-        json.result.forEach((result, resultIndex) => {
+
+        json.result.forEach((result) => {
+          console.log(json);
+          const breakdownBy = options.breakdownBy;
           agg.push({
-            name: this.series[resultIndex]?.label ?? result.label,
+            name: result.action.id,
+            ...(breakdownBy
+              ? {
+                  [breakdownBy]: result.breakdown_value,
+                }
+              : {}),
             value: result.aggregated_value,
-          } as Table<Labels>["data"][number]);
+          } as unknown as Table<Labels>["data"][number]);
         });
         output = {
           data: agg,
           dataKey: options.dataIndex ?? defaultChartDataKeys[options.type],
         } as unknown as Output;
+
         break;
       }
       default:
