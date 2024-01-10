@@ -1,6 +1,6 @@
 ### Core
 
-- ~~Allow for changing of dataKey~~
+- ~~Allow for changing of datakey~~
 
 ### Finish PostHog execute() function
 

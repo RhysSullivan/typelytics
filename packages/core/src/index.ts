@@ -43,14 +43,14 @@ export type TimeSeriesChart<
   Entries extends string,
   Key extends string = DefaultDataKeyForChartType[ChartType],
 > = {
-  dataKey?: Key;
+  datakey?: Key;
   data: Record<Entries | Key, string>[];
 };
 
 export type NumberChart<
   DataKey extends string = DefaultDataKeyForChartType[ChartType],
 > = {
-  dataKey?: DataKey;
+  datakey?: DataKey;
   data: number;
 };
 
@@ -58,7 +58,7 @@ export type PieChart<
   T extends string,
   DataKey extends string = DefaultDataKeyForChartType[ChartType],
 > = {
-  dataKey?: DataKey;
+  datakey?: DataKey;
   data: {
     label: T;
     value: number;

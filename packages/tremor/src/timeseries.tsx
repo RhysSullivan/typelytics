@@ -29,12 +29,12 @@ export function LineChart<
   const Labels extends string,
   const Key extends string,
 >(props: LineChartProps<Labels, Key>) {
-  const { data, dataKey = defaultChartDataKeys["line"] } = props;
+  const { data, datakey = defaultChartDataKeys["line"] } = props;
   const categories = new Set<Labels>(props.categories || []);
   if (!props.categories) {
     data.forEach((d) => {
       Object.keys(d).forEach((key) => {
-        if (key !== dataKey) {
+        if (key !== datakey) {
           categories.add(key as Labels);
         }
       });
@@ -44,7 +44,7 @@ export function LineChart<
     <TremorLineChart
       className="mt-6"
       data={data}
-      index={dataKey}
+      index={datakey}
       categories={[...categories]}
     />
   );
@@ -59,12 +59,12 @@ export type BarChartProps<
 export function BarChart<const Labels extends string, const Key extends string>(
   props: BarChartProps<Labels, Key>
 ) {
-  const { data, dataKey = defaultChartDataKeys["bar"] } = props;
+  const { data, datakey = defaultChartDataKeys["bar"] } = props;
   const categories = new Set<Labels>(props.categories || []);
   if (!props.categories) {
     data.forEach((d) => {
       Object.keys(d).forEach((key) => {
-        if (key !== dataKey) {
+        if (key !== datakey) {
           categories.add(key as Labels);
         }
       });
@@ -74,7 +74,7 @@ export function BarChart<const Labels extends string, const Key extends string>(
     <TremorBarChart
       className="mt-6"
       data={data}
-      index={dataKey}
+      index={datakey}
       categories={[...categories]}
     />
   );
@@ -90,12 +90,12 @@ export function AreaChart<
   const Labels extends string,
   const DataKey extends string,
 >(props: AreaChartProps<Labels, DataKey>) {
-  const { data, dataKey = defaultChartDataKeys["area"] } = props;
+  const { data, datakey = defaultChartDataKeys["area"] } = props;
   const categories = new Set<Labels>(props.categories || []);
   if (!props.categories) {
     data.forEach((d) => {
       Object.keys(d).forEach((key) => {
-        if (key !== props.dataKey) {
+        if (key !== props.datakey) {
           categories.add(key as Labels);
         }
       });
@@ -106,7 +106,7 @@ export function AreaChart<
     <TremorAreaChart
       className="mt-6"
       data={data}
-      index={dataKey}
+      index={datakey}
       categories={[...categories]}
     />
   );

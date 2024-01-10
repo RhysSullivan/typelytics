@@ -79,7 +79,7 @@ export function Chart<
       const args = props as NumberChart<DataKey>;
       return (
         <>
-          <Text>{args.dataKey}</Text>
+          <Text>{args.datakey}</Text>
           <Metric>{args.data}</Metric>
         </>
       );

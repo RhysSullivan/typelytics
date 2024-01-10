@@ -155,7 +155,7 @@ function trendsApiResponseToTimeseries<
     name: string;
     label?: string;
   }[],
-  dataKey: DataKey = "date" as DataKey
+  datakey: DataKey = "date" as DataKey
 ): TimeSeriesChart<Labels, DataKey> {
   const output: TimeSeriesChart<Labels, DataKey>["data"] = new Array(
     input.result[0]?.days.length
@@ -170,7 +170,7 @@ function trendsApiResponseToTimeseries<
       }
       if (!entry) {
         output[i] = {
-          [dataKey]: date,
+          [datakey]: date,
           [label as Labels]: value,
         } as TimeSeriesChart<Labels, DataKey>["data"][number];
       } else {
@@ -180,7 +180,7 @@ function trendsApiResponseToTimeseries<
   });
   return {
     data: output,
-    dataKey,
+    datakey,
   };
 }
 
@@ -447,7 +447,7 @@ class PostHogQuery<
         });
         output = {
           data: agg,
-          dataKey: options.dataIndex ?? defaultChartDataKeys[options.type],
+          datakey: options.dataIndex ?? defaultChartDataKeys[options.type],
         } as unknown as Output;
         break;
       }
@@ -455,7 +455,7 @@ class PostHogQuery<
         const value = json.result[0]?.aggregated_value ?? 0;
 
         output = {
-          dataKey:
+          datakey:
             this.series[0]?.label ??
             json.result[0]?.label ??
             defaultChartDataKeys[options.type],
@@ -482,7 +482,7 @@ class PostHogQuery<
         });
         output = {
           data: agg,
-          dataKey: options.dataIndex ?? defaultChartDataKeys[options.type],
+          datakey: options.dataIndex ?? defaultChartDataKeys[options.type],
         } as unknown as Output;
 
         break;
