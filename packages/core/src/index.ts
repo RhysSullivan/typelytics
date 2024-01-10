@@ -74,7 +74,7 @@ export type BarTotalChart<T extends string> = {
 
 export type Table<T extends string> = {
   data: ({
-    name: T;
+    label: T;
     value: string;
   } & Record<string, string>)[];
 };

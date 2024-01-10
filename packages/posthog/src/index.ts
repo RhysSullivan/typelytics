@@ -105,7 +105,7 @@ type PostHogExecuteOptions<
   PropertyNames extends string,
   DataIndex extends string,
 > = {
-  groupBy: Interval;
+  groupBy: Interval; // TODO: Should this be required?
   filterMatch?: "all" | "any";
   type: ChartType;
   breakdownBy?: PropertyNames;

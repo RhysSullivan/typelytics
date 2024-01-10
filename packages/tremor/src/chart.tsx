@@ -1,14 +1,5 @@
 "use client";
-import {
-  Metric,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeaderCell,
-  TableRow,
-  Text,
-} from "@tremor/react";
+import { Metric, Text } from "@tremor/react";
 import {
   AreaChartType,
   BarChartType,
@@ -21,7 +12,6 @@ import {
   NumberChartType,
   PieChartType,
   TableChartType,
-  Table as TypeChartsTable,
 } from "@typecharts/core";
 import {
   LineChart,
@@ -33,6 +23,7 @@ import {
 } from "./timeseries";
 import { PieChart, PieChartProps } from "./pie";
 import { BarTotalChart, BarTotalChartProps } from "./bar-total";
+import { Table, TableProps } from "./table";
 
 export function Chart<
   const Type extends ChartType,
@@ -54,7 +45,7 @@ export function Chart<
               : Type extends NumberChartType
                 ? NumberChart<DataKey>
                 : Type extends TableChartType
-                  ? TypeChartsTable<Labels>
+                  ? TableProps<Labels>
                   : `!!! ${Type} chart is unsupported !!!`) & { type: Type }
 ) {
   const type = props.type;
@@ -84,28 +75,7 @@ export function Chart<
         </>
       );
     case "table":
-      const data = (props as TypeChartsTable<Labels>).data;
-      const labels = new Set(Object.keys(data[0] ?? {}));
-      return (
-        <Table className="mt-5">
-          <TableHead>
-            <TableRow>
-              {Array.from(labels).map((label) => (
-                <TableHeaderCell key={label}>{label}</TableHeaderCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {data.map((item) => (
-              <TableRow key={item.label}>
-                {Object.keys(item).map((key) => (
-                  <TableCell>{item[key]}</TableCell>
-                ))}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      );
+      return <Table {...(props as TableProps<Labels>)} />;
   }
   throw new Error(`Unknown chart type: ${type}`);
 }
