@@ -8,16 +8,17 @@ export default async function DashboardSSR() {
   const data = await posthog
     .query()
     .addSeries("$pageview", {
-      sampling: "total",
+      sampling: "unique_session",
+      math_property: "$viewport_width",
     })
-    .addSeries("$autocapture", {
+    .addSeries("Asked Question", {
       sampling: "total",
     })
     .execute({
       groupBy: "day",
-      breakdownBy: "$current_url",
+      breakdownBy: "$browser",
       excludeOther: true,
-      type: "table",
+      type: "pie",
     });
 
   return <DashboardExample largeCard={<Chart {...data} />} />;

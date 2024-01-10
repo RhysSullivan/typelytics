@@ -9,6 +9,21 @@ import {
   Table,
 } from "@typecharts/core";
 
+const propertyMathTypes = [
+  "avg",
+  "sum",
+  "min",
+  "max",
+  "median",
+  "p90",
+  "p95",
+  "p99",
+] as const;
+
+const propertyMathSet = new Set<string>(propertyMathTypes);
+
+type PropertyMathType = (typeof propertyMathTypes)[number];
+
 const mathTypes = [
   "total",
   "dau",
@@ -16,14 +31,6 @@ const mathTypes = [
   "monthly_active",
   "unique_group",
   "unique_session",
-  "sum",
-  "min",
-  "max",
-  // "avg", TODO: Re-enable in the future
-  "median",
-  "p90",
-  "p95",
-  "p99",
   "min_count_per_actor",
   "max_count_per_actor",
   "avg_count_per_actor",
@@ -31,7 +38,7 @@ const mathTypes = [
   "p90_count_per_actor",
   "p95_count_per_actor",
   "p99_count_per_actor",
-  "hogql",
+  // "hogql", TODO: Support hogql
 ] as const;
 
 export type PosthogPropertyType =
@@ -87,8 +94,9 @@ export type PostHogSeries<
 > = {
   name: T;
   label?: string;
-  sampling: PostHogSamplingOptions;
   where?: PostHogFilterGroup<T, Events> | PostHogFilterGroup<T, Events>[];
+  sampling: PropertyMathType | PostHogSamplingOptions;
+  math_property?: Events[T]["properties"][number]["name"];
 };
 
 type Interval = "day" | "hour" | "week" | "month";
@@ -249,7 +257,8 @@ type PostHogInsightTrendParams = {
     id: string;
     order: number;
     name: string;
-    math: PostHogSamplingOptions;
+    math: PostHogSamplingOptions | PropertyMathType;
+    math_property?: PropertyMathType;
   }[];
   formula?: string;
   breakdown_type: "event";
@@ -357,13 +366,26 @@ class PostHogQuery<
       refresh: false,
       filter_test_accounts: false,
       entity_type: "events",
-      events: this.series.map((scenario, index) => ({
-        id: scenario.name,
-        name: scenario.name,
-        order: index,
-        type: "events",
-        math: scenario.sampling,
-      })),
+      events: this.series.map((scenario, index) => {
+        if (
+          propertyMathSet.has(scenario.sampling as string) &&
+          !scenario.math_property
+        ) {
+          // TODO: Do this on a type level
+          throw new Error(`math_property is required for ${scenario.sampling}`);
+        }
+        return {
+          id: scenario.name,
+          name: scenario.name,
+          order: index,
+          type: "events",
+          math: scenario.sampling,
+          math_property: propertyMathSet.has(scenario.sampling as string)
+            ? scenario.math_property
+            : undefined,
+        } as PostHogInsightTrendParams["events"][number];
+      }),
+
       properties: {
         type: "OR",
         values: [],
@@ -443,15 +465,16 @@ class PostHogQuery<
       }
       case "table": {
         const agg: Table<Labels>["data"] = [];
-
         json.result.forEach((result) => {
-          console.log(json);
           const breakdownBy = options.breakdownBy;
           agg.push({
             name: result.action.id,
             ...(breakdownBy
               ? {
-                  [breakdownBy]: result.breakdown_value,
+                  [breakdownBy]: result.label.replace(
+                    `${result.action.id} - `,
+                    ""
+                  ),
                 }
               : {}),
             value: result.aggregated_value,
