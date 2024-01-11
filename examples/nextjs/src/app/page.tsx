@@ -3,7 +3,7 @@ import { PostHog } from "@typecharts/posthog";
 import type { PostHogEvents } from "~/data/events";
 
 const posthog = new PostHog<PostHogEvents>();
-const analyticsQueries = {
+export const analyticsQueries = {
   pageViewsByBrowser() {
     return posthog
       .query()

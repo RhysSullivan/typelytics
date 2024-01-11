@@ -94,7 +94,7 @@ export function DashboardExample(props: { data: AnalyticsQueries }) {
                             alt="avatar"
                             className="max-w-[48px]"
                           />
-                          <span className=" text-xl">
+                          <span className="ml-2 text-xl">
                             {tenNames[Number(value) % tenNames.length]}
                           </span>
                         </div>
