@@ -7,7 +7,7 @@ import {
   defaultChartDataKeys,
   BarTotalChart,
   Table,
-} from "@typecharts/core";
+} from "@typelytics/core";
 
 const propertyMathTypes = [
   "avg",

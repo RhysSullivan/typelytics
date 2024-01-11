@@ -1,5 +1,5 @@
 "use client";
-import { BarTotalChart } from "@typecharts/core";
+import { BarTotalChart } from "@typelytics/core";
 import {
   BarListProps as TremorBarTotalChartProps,
   BarList as TremorBarTotalChart,

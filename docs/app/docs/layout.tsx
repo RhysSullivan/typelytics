@@ -7,8 +7,8 @@ export default function RootDocsLayout({ children }: { children: ReactNode }) {
     <DocsLayout
       tree={tree}
       nav={{
-        title: "typecharts",
-        githubUrl: "https://github.com/RhysSullivan/typecharts",
+        title: "typelytics",
+        githubUrl: "https://github.com/RhysSullivan/typelytics",
       }}
       sidebar={{
         defaultOpenLevel: 3,

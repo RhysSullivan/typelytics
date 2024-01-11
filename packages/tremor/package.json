@@ -1,5 +1,5 @@
 {
-  "name": "@typecharts/tremor",
+  "name": "@typelytics/tremor",
   "version": "0.2.0",
   "author": "Rhys Sullivan",
   "license": "MIT",
@@ -7,7 +7,7 @@
   "types": "src/index.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/rhyssullivan/typecharts",
+    "url": "https://github.com/rhyssullivan/typelytics",
     "directory": "packages/core"
   },
   "scripts": {
@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "@tremor/react": "^3.11.1",
-    "@typecharts/core": "0.2.0",
+    "@typelytics/core": "0.2.0",
     "react": "18.2.0"
   }
 }

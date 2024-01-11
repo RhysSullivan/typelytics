@@ -6,7 +6,7 @@ import { tree } from "./source";
 import { Metadata } from "next";
 export const metadata = {
   icons: ["favicon.png"],
-  title: "typecharts",
+  title: "typelytics",
   description: "typesafe analytics from query to render",
 } satisfies Metadata;
 export default function Home() {
@@ -14,8 +14,8 @@ export default function Home() {
     <DocsLayout
       tree={tree}
       nav={{
-        title: "typecharts",
-        githubUrl: "https://github.com/RhysSullivan/typecharts",
+        title: "typelytics",
+        githubUrl: "https://github.com/RhysSullivan/typelytics",
       }}
       sidebar={{
         enabled: false,
@@ -60,7 +60,7 @@ export default function Home() {
             className={`${buttonVariants({
               variant: "outline",
             })} h-14 w-42 text-base`}
-            href={"https://github.com/RhysSullivan/typecharts"}
+            href={"https://github.com/RhysSullivan/typelytics"}
             target="_blank"
           >
             ⭐ Star

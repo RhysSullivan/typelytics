@@ -6,7 +6,7 @@ import {
   TableHeaderCell,
   TableRow,
 } from "@tremor/react";
-import { Table as TypeChartsTable } from "@typecharts/core";
+import { Table as TypeChartsTable } from "@typelytics/core";
 
 export type TableProps<Labels extends string> = TypeChartsTable<Labels> & {
   renderHeader?: ((label: Labels) => React.ReactNode) | Record<string, string>;

@@ -1,5 +1,5 @@
 {
-  "name": "@typecharts/nextjs-example",
+  "name": "@typelytics/nextjs-example",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -14,8 +14,8 @@
     "@headlessui/tailwindcss": "^0.2.0",
     "@t3-oss/env-nextjs": "^0.7.1",
     "@tremor/react": "^3.11.1",
-    "@typecharts/posthog": "0.2.0",
-    "@typecharts/tremor": "0.2.0",
+    "@typelytics/posthog": "0.2.0",
+    "@typelytics/tremor": "0.2.0",
     "dotenv-cli": "^7.3.0",
     "next": "14.0.4",
     "react": "18.2.0",

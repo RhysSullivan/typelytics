@@ -1,5 +1,5 @@
 "use client";
-import { PieChart } from "@typecharts/core";
+import { PieChart } from "@typelytics/core";
 import {
   DonutChart as TremorPieChart,
   DonutChartProps as TremorPieChartProps,
@@ -11,7 +11,7 @@ export type PieChartProps<Labels extends string, DataKey extends string> = {
 } & Omit<TremorPieChartProps, "index" | "data" | "category">;
 
 export function PieChart<const Labels extends string, DataKey extends string>(
-  props: PieChartProps<Labels, DataKey>
+  props: PieChartProps<Labels, DataKey>,
 ) {
   return (
     <TremorPieChart

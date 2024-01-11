@@ -2,12 +2,12 @@
   "$schema": "https://unpkg.com/@changesets/config@2.3.0/schema.json",
   "changelog": [
     "@changesets/changelog-github",
-    { "repo": "rhyssullivan/typecharts" }
+    { "repo": "rhyssullivan/typelytics" }
   ],
   "commit": false,
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "fixed": [["@typecharts/core", "@typecharts/posthog-generator", "@typecharts/posthog", "@typecharts/tremor"]],
-  "ignore": ["@typecharts/nextjs-example", "@typecharts/docs"]
+  "fixed": [["@typelytics/core", "@typelytics/posthog-generator", "@typelytics/posthog", "@typelytics/tremor"]],
+  "ignore": ["@typelytics/nextjs-example", "@typelytics/docs"]
 }

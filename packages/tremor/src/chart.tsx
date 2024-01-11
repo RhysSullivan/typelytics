@@ -12,7 +12,7 @@ import {
   NumberChartType,
   PieChartType,
   TableChartType,
-} from "@typecharts/core";
+} from "@typelytics/core";
 import {
   LineChart,
   BarChart,
@@ -46,7 +46,7 @@ export function Chart<
                 ? NumberChart<DataKey>
                 : Type extends TableChartType
                   ? TableProps<Labels>
-                  : `!!! ${Type} chart is unsupported !!!`) & { type: Type }
+                  : `!!! ${Type} chart is unsupported !!!`) & { type: Type },
 ) {
   const type = props.type;
   switch (type) {

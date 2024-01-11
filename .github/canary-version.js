@@ -27,8 +27,8 @@ try {
 
       const content = JSON.stringify(pkg, null, "\t") + "\n";
       const newContent = content.replace(
-        new RegExp(`"@typecharts/\\*": "${oldVersion}"`, "g"),
-        `"@typecharts/*": "${newVersion}"`
+        new RegExp(`"@typelytics/\\*": "${oldVersion}"`, "g"),
+        `"@typelytics/*": "${newVersion}"`
       );
 
       fs.writeFileSync(pkgJsonPath, newContent);

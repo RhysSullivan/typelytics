@@ -1,5 +1,5 @@
 {
-  "name": "@typecharts/root",
+  "name": "@typelytics/root",
   "packageManager": "pnpm@8.5.0",
   "private": true,
   "type": "module",

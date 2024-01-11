@@ -13,7 +13,7 @@ We use the type import rather than passing in an object of event types in order 
 
 ```ts
 import type { PostHogEvents } from "~/data/events";
-import { PostHog } from "@typecharts/posthog";
+import { PostHog } from "@typelytics/posthog";
 
 const posthog = new PostHog<PostHogEvents>();
 //                          ^ Make sure to pass in your events type here

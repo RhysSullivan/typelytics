@@ -4,7 +4,7 @@ import {
   PostHogEvent,
   toParams,
   PosthogPropertyType,
-} from "@typecharts/posthog";
+} from "@typelytics/posthog";
 import fs from "node:fs/promises";
 import path from "node:path";
 
@@ -137,7 +137,7 @@ async function fetchAllEvents() {
   return result;
 }
 import { intro, text, outro, log } from "@clack/prompts";
-intro("@typecharts posthog type generation");
+intro("@typelytics posthog type generation");
 
 async function generate() {
   if (!posthogToken) {

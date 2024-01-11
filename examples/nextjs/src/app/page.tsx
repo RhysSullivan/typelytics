@@ -1,5 +1,5 @@
 import { DashboardExample } from "./dashboard";
-import { PostHog } from "@typecharts/posthog";
+import { PostHog } from "@typelytics/posthog";
 import type { PostHogEvents } from "~/data/events";
 
 const posthog = new PostHog<PostHogEvents>();

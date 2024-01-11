@@ -1,5 +1,5 @@
 {
-  "name": "@typecharts/core",
+  "name": "@typelytics/core",
   "version": "0.2.0",
   "author": "Rhys Sullivan",
   "license": "MIT",
@@ -8,7 +8,7 @@
   "types": "./dist/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/rhyssullivan/typecharts",
+    "url": "https://github.com/rhyssullivan/typelytics",
     "directory": "packages/core"
   },
   "scripts": {

@@ -114,10 +114,10 @@ importers:
       '@tremor/react':
         specifier: ^3.11.1
         version: 3.11.1(prop-types@15.8.1)(react-dom@18.2.0)(react@18.2.0)(tailwindcss@3.3.5)
-      '@typecharts/posthog':
+      '@typelytics/posthog':
         specifier: 0.2.0
         version: link:../../packages/posthog
-      '@typecharts/tremor':
+      '@typelytics/tremor':
         specifier: 0.2.0
         version: link:../../packages/tremor
       dotenv-cli:
@@ -196,7 +196,7 @@ importers:
 
   packages/posthog:
     dependencies:
-      '@typecharts/core':
+      '@typelytics/core':
         specifier: 0.2.0
         version: link:../core
     devDependencies:
@@ -215,7 +215,7 @@ importers:
       '@clack/prompts':
         specifier: ^0.7.0
         version: 0.7.0
-      '@typecharts/posthog':
+      '@typelytics/posthog':
         specifier: 0.2.0
         version: link:../posthog
     devDependencies:
@@ -234,7 +234,7 @@ importers:
       '@tremor/react':
         specifier: ^3.11.1
         version: 3.11.1(prop-types@15.8.1)(react-dom@18.2.0)(react@18.2.0)(tailwindcss@3.3.5)
-      '@typecharts/core':
+      '@typelytics/core':
         specifier: 0.2.0
         version: link:../core
       react:

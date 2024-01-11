@@ -11,7 +11,7 @@ import {
   Title,
 } from "@tremor/react";
 import { AnalyticsQueries } from "./page";
-import { Chart } from "@typecharts/tremor";
+import { Chart } from "@typelytics/tremor";
 
 const tenNames = [
   "Aidan",

@@ -1,5 +1,5 @@
 {
-  "name": "@typecharts/posthog-generator",
+  "name": "@typelytics/posthog-generator",
   "version": "0.2.0",
   "author": "Rhys Sullivan",
   "license": "MIT",
@@ -7,7 +7,7 @@
   "bin": "./dist/bin.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/rhyssullivan/typecharts",
+    "url": "https://github.com/rhyssullivan/typelytics",
     "directory": "packages/posthog-generator"
   },
   "scripts": {
@@ -25,6 +25,6 @@
   },
   "dependencies": {
     "@clack/prompts": "^0.7.0",
-    "@typecharts/posthog": "0.2.0"
+    "@typelytics/posthog": "0.2.0"
   }
 }

@@ -3,7 +3,7 @@ import {
   DefaultDataKeyForChartType,
   TimeSeriesChart,
   defaultChartDataKeys,
-} from "@typecharts/core";
+} from "@typelytics/core";
 import {
   LineChart as TremorLineChart,
   LineChartProps as TremorLineChartProps,
@@ -57,7 +57,7 @@ export type BarChartProps<
   Omit<TremorBarChartProps, "data" | "categories" | "index">;
 
 export function BarChart<const Labels extends string, const Key extends string>(
-  props: BarChartProps<Labels, Key>
+  props: BarChartProps<Labels, Key>,
 ) {
   const { data, datakey = defaultChartDataKeys["bar"] } = props;
   const categories = new Set<Labels>(props.categories || []);
