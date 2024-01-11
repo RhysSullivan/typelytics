@@ -1,6 +1,6 @@
 {
   "name": "@typelytics/posthog-generator",
-  "version": "0.2.0",
+  "version": "0.0.01",
   "author": "Rhys Sullivan",
   "license": "MIT",
   "type": "module",
