@@ -66,18 +66,8 @@ export type PostHogFilter<
   Events extends _ExtendOnlyEventMap,
 > = {
   name: Events[EventName]["properties"][number]["name"];
-  compare:
-    | "equals"
-    | "does_not_equal"
-    | "contains"
-    | "does_not_contain"
-    | "matches_regex"
-    | "does_not_match_regex"
-    | "greater_than"
-    | "less_than"
-    | "is_set"
-    | "is_not_set";
-  value: string | number | boolean;
+  compare: PropertyOperator;
+  value: PropertyFilterValue;
 };
 
 export type PostHogFilterGroup<
@@ -106,7 +96,7 @@ type PostHogExecuteOptions<
   DataIndex extends string,
 > = {
   groupBy: Interval; // TODO: Should this be required?
-  filterMatch?: "all" | "any";
+  filterMatch?: FilterLogicalOperator;
   type: ChartType;
   breakdownBy?: PropertyNames;
   compareToPreviousPeriod?: boolean;
@@ -237,17 +227,57 @@ type PostHogDisplayType =
   | "ActionsAreaGraph"
   | "WorldMap";
 
+type FilterLogicalOperator = "AND" | "OR";
+type PropertyFilterValue = string | number | (string | number)[] | null;
+
+const propertyOperators = [
+  "exact",
+  "is_not",
+  "icontains",
+  "not_icontains",
+  "regex",
+  "not_regex",
+  "gt",
+  "gte",
+  "lt",
+  "lte",
+  "is_set",
+  "is_not_set",
+  "is_date_exact",
+  "is_date_before",
+  "is_date_after",
+  "between",
+  "not_between",
+  "min",
+  "max",
+] as const;
+type PropertyOperator = (typeof propertyOperators)[number];
+
+type BasePropertyFilter = {
+  key: string;
+  value?: PropertyFilterValue;
+  label?: string; // TODO: What is label?
+  type?: "event";
+};
+
+type EventPropertyFilter = BasePropertyFilter & {
+  type: "event";
+  operator: PropertyOperator;
+};
+
+type PropertyGroupFilterValue = {
+  type: FilterLogicalOperator;
+  values: (EventPropertyFilter | PropertyGroupFilterValue)[];
+};
+
+type PropertyGroupFilter = {
+  type: FilterLogicalOperator;
+  values: PropertyGroupFilterValue[];
+};
+
 type PostHogInsightTrendParams = {
   insight: "TRENDS";
-  properties?: {
-    type: "AND" | "OR";
-    values: {
-      key: string;
-      value: (string | number | boolean) | (string | number | boolean)[];
-      operator: "exact";
-      type: "event";
-    }[];
-  };
+  properties?: PropertyGroupFilter;
   date_from: string;
   entity_type: "events";
   filter_test_accounts: boolean;
@@ -361,6 +391,26 @@ class PostHogQuery<
       A
     >,
   >(options: ExecutionOptions): Promise<Output> {
+    const properties: PropertyGroupFilter = {
+      type: options.filterMatch ?? "AND",
+      values: this.filterGroups.map((filterGroup) => {
+        const vals = Array.isArray(filterGroup.filters)
+          ? filterGroup.filters
+          : [filterGroup.filters];
+        return {
+          type: filterGroup.match === "all" ? "AND" : "OR",
+          values: vals.map(
+            (filter) =>
+              ({
+                key: filter.name,
+                operator: filter.compare,
+                value: filter.value,
+                type: "event",
+              }) satisfies EventPropertyFilter
+          ),
+        };
+      }),
+    };
     const reqData: PostHogInsightTrendParams = {
       insight: "TRENDS",
       refresh: false,
@@ -385,11 +435,7 @@ class PostHogQuery<
             : undefined,
         } as PostHogInsightTrendParams["events"][number];
       }),
-
-      properties: {
-        type: "OR",
-        values: [],
-      },
+      properties,
       breakdown_type: "event",
       breakdown: options.breakdownBy,
       breakdown_hide_other_aggregation: options.excludeOther,

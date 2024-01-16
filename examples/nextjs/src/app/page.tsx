@@ -21,8 +21,18 @@ export const analyticsQueries = {
   questionsAskedByUser() {
     return posthog
       .query()
-      .addSeries("Asked Question", {
+      .addSeries("Solved Question", {
         sampling: "total",
+      })
+      .addFilterGroup({
+        filters: [
+          {
+            compare: "icontains",
+            name: "Answer Overflow Account Id",
+            value: "5",
+          },
+        ],
+        match: "all",
       })
       .execute({
         breakdownBy: "Answer Overflow Account Id",
