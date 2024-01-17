@@ -65,7 +65,7 @@ export type PostHogFilter<
   EventName extends string,
   Events extends _ExtendOnlyEventMap,
 > = {
-  name: Events[EventName]["properties"][number]["name"];
+  property: Events[EventName]["properties"][number]["name"];
   compare: PropertyOperator;
   value: PropertyFilterValue;
 };
@@ -89,20 +89,30 @@ export type PostHogSeries<
   math_property?: Events[T]["properties"][number]["name"];
 };
 
-type Interval = "day" | "hour" | "week" | "month";
+type IntervalType = "hour" | "day" | "week" | "month";
 
 type PostHogExecuteOptions<
   PropertyNames extends string,
   DataIndex extends string,
 > = {
-  groupBy: Interval; // TODO: Should this be required?
-  filterMatch?: FilterLogicalOperator;
-  type: ChartType;
-  breakdownBy?: PropertyNames;
-  compareToPreviousPeriod?: boolean;
   dataIndex?: DataIndex;
-  excludeOther?: boolean;
-};
+  type: ChartType;
+  filterCompare?: FilterLogicalOperator;
+} & Pick<
+  PostHogInsightTrendParams<PropertyNames>,
+  | "filter_test_accounts"
+  | "sampling_factor"
+  | "date_from"
+  | "date_to"
+  | "explicit_date"
+  | "interval"
+  | "breakdown"
+  | "breakdown_normalize_url"
+  | "breakdown_hide_other_aggregation"
+  | "compare"
+  | "formula"
+  | "smoothing_intervals"
+>;
 
 type PostHogConfig = {
   apiKey: string;
@@ -124,6 +134,7 @@ type TrendResult = {
   aggregated_value: number;
   status?: string;
   compare?: boolean;
+  compare_label?: string;
   persons_urls?: { url: string }[];
 };
 
@@ -132,9 +143,21 @@ export type TrendAPIResponse<ResultType = TrendResult[]> = {
   is_cached: boolean;
   last_refresh: string | null;
   result: ResultType;
+
   timezone: string;
   next: string | null;
 };
+
+function applyCompareToLabel<T extends string>(
+  label: T,
+  compare_label: string | undefined
+) {
+  return `${
+    compare_label
+      ? compare_label.slice(0, 1).toUpperCase() + compare_label.slice(1) + " - "
+      : ""
+  }${label}`;
+}
 
 function trendsApiResponseToTimeseries<
   Labels extends string,
@@ -154,7 +177,10 @@ function trendsApiResponseToTimeseries<
     result.data.forEach((value, i) => {
       const entry = output[i];
       const date = result.labels[i];
-      const label = series[resultIndex]?.label ?? result.label;
+      const label = applyCompareToLabel(
+        series[resultIndex]?.label ?? result.label,
+        result.compare_label
+      );
       if (!date) {
         return;
       }
@@ -224,8 +250,8 @@ type PostHogDisplayType =
   | "ActionsBar"
   | "ActionsBarValue"
   | "ActionsLineGraphCumulative"
-  | "ActionsAreaGraph"
-  | "WorldMap";
+  | "ActionsAreaGraph";
+// | "WorldMap";
 
 type FilterLogicalOperator = "AND" | "OR";
 type PropertyFilterValue = string | number | (string | number)[] | null;
@@ -275,12 +301,11 @@ type PropertyGroupFilter = {
   values: PropertyGroupFilterValue[];
 };
 
-type PostHogInsightTrendParams = {
+type PostHogInsightTrendParams<PropertyNames extends string> = {
   insight: "TRENDS";
   properties?: PropertyGroupFilter;
-  date_from: string;
   entity_type: "events";
-  filter_test_accounts: boolean;
+  filter_test_accounts?: boolean;
   refresh: boolean;
   events: {
     type: "events";
@@ -289,12 +314,20 @@ type PostHogInsightTrendParams = {
     name: string;
     math: PostHogSamplingOptions | PropertyMathType;
     math_property?: PropertyMathType;
+    properties?: PropertyGroupFilterValue;
   }[];
   formula?: string;
+  smoothing_intervals?: number;
+  compare?: boolean;
+  sampling_factor?: number | null;
+  date_from?: string | null;
+  date_to?: string | null;
+  explicit_date?: boolean | string | null;
+  interval?: IntervalType;
+  breakdown?: PropertyNames;
   breakdown_type: "event";
-  breakdown?: string;
-  breakdown_hide_other_aggregation?: boolean;
-  interval: Interval;
+  breakdown_normalize_url?: boolean;
+  breakdown_hide_other_aggregation?: boolean | null;
   display: PostHogDisplayType;
 };
 
@@ -307,8 +340,8 @@ const chartTypeToPostHogType: Record<ChartType, PostHogDisplayType> = {
   number: "BoldNumber",
   pie: "ActionsPie",
   table: "ActionsTable",
-  world: "WorldMap",
-};
+  // world: "WorldMap",
+} as const;
 
 type AllLabelsOrNames<
   EventName extends string,
@@ -387,12 +420,16 @@ class PostHogQuery<
       : DefaultDataKeyForChartType[ExecutionOptions["type"]],
     Output extends Chart<
       ChartType,
-      ExecutionOptions["breakdownBy"] extends undefined ? Labels : string,
+      ExecutionOptions["breakdown"] extends string
+        ? string
+        : ExecutionOptions["compare"] extends boolean
+          ? `Previous - ${Labels}` | `Current - ${Labels}`
+          : Labels,
       A
     >,
   >(options: ExecutionOptions): Promise<Output> {
     const properties: PropertyGroupFilter = {
-      type: options.filterMatch ?? "AND",
+      type: options.filterCompare ?? "AND",
       values: this.filterGroups.map((filterGroup) => {
         const vals = Array.isArray(filterGroup.filters)
           ? filterGroup.filters
@@ -402,7 +439,7 @@ class PostHogQuery<
           values: vals.map(
             (filter) =>
               ({
-                key: filter.name,
+                key: filter.property,
                 operator: filter.compare,
                 value: filter.value,
                 type: "event",
@@ -411,7 +448,9 @@ class PostHogQuery<
         };
       }),
     };
-    const reqData: PostHogInsightTrendParams = {
+    const reqData: PostHogInsightTrendParams<
+      Events[Series["name"]]["properties"][number]["name"]
+    > = {
       insight: "TRENDS",
       refresh: false,
       filter_test_accounts: false,
@@ -433,15 +472,25 @@ class PostHogQuery<
           math_property: propertyMathSet.has(scenario.sampling as string)
             ? scenario.math_property
             : undefined,
-        } as PostHogInsightTrendParams["events"][number];
+        } as PostHogInsightTrendParams<
+          Events[Series["name"]]["properties"][number]["name"]
+        >["events"][number];
       }),
       properties,
       breakdown_type: "event",
-      breakdown: options.breakdownBy,
-      breakdown_hide_other_aggregation: options.excludeOther,
-      date_from: "-7d",
+      breakdown: options.breakdown,
       display: chartTypeToPostHogType[options.type],
-      interval: options.groupBy,
+      breakdown_hide_other_aggregation:
+        options.breakdown_hide_other_aggregation,
+      breakdown_normalize_url: options.breakdown_normalize_url,
+      date_from: options.date_from,
+      date_to: options.date_to,
+      explicit_date: options.explicit_date,
+      interval: options.interval,
+      sampling_factor: options.sampling_factor,
+      compare: options.compare,
+      formula: options.formula,
+      smoothing_intervals: options.smoothing_intervals,
     };
     const encodedQueryString = toParams(reqData);
     const url = `https://app.posthog.com/api/projects/${this.config.projectId}/insights/trend/?${encodedQueryString}`;
@@ -474,7 +523,10 @@ class PostHogQuery<
         const agg: BarTotalChart<Labels>["data"] = [];
         json.result.forEach((result, resultIndex) => {
           agg.push({
-            name: this.series[resultIndex]?.label ?? result.label,
+            name: applyCompareToLabel(
+              this.series[resultIndex]?.label ?? result.label,
+              result.compare_label
+            ),
             value: result.aggregated_value,
           } as BarTotalChart<Labels>["data"][number]);
         });
@@ -487,7 +539,10 @@ class PostHogQuery<
         const agg: PieChart<Labels, DataKey>["data"] = [];
         json.result.forEach((result, resultIndex) => {
           agg.push({
-            label: this.series[resultIndex]?.label ?? result.label,
+            label: applyCompareToLabel(
+              this.series[resultIndex]?.label ?? result.label,
+              result.compare_label
+            ),
             value: result.aggregated_value,
           } as PieChart<Labels, DataKey>["data"][number]);
         });
@@ -512,7 +567,7 @@ class PostHogQuery<
       case "table": {
         const agg: Table<Labels>["data"] = [];
         json.result.forEach((result) => {
-          const breakdownBy = options.breakdownBy;
+          const breakdownBy = options.breakdown;
           agg.push({
             name: result.action.id,
             ...(breakdownBy
@@ -533,8 +588,6 @@ class PostHogQuery<
 
         break;
       }
-      default:
-        throw new Error(`Unsupported type: ${options.type}`);
     }
     output["type"] = options.type as ChartType;
     return output;

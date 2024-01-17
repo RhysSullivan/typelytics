@@ -78,6 +78,9 @@ export function DashboardExample(props: { data: AnalyticsQueries }) {
               <Card>
                 <Chart {...props.data.pageViewsByBrowser} />
               </Card>
+              <Card>
+                <Chart {...props.data.pageViews} />
+              </Card>
             </div>
             <div className="mt-6 max-w-[400px]">
               <Card>

@@ -9,36 +9,88 @@ export const analyticsQueries = {
       .query()
       .addSeries("$pageview", {
         sampling: "unique_session",
-        math_property: "$viewport_width",
+      })
+      .addFilterGroup({
+        filters: {
+          property: "$browser",
+          compare: "icontains",
+          value: "chrome",
+        },
+        match: "any",
+      })
+      .addFilterGroup({
+        filters: [
+          {
+            compare: "icontains",
+            property: "$browser",
+            value: "safari",
+          },
+          {
+            compare: "icontains",
+            property: "$browser",
+            value: "firefox",
+          },
+        ],
+        match: "any",
       })
       .execute({
-        groupBy: "day",
-        breakdownBy: "$browser",
-        excludeOther: true,
+        interval: "day",
+        breakdown: "$browser",
+        date_from: "7d",
+        breakdown_hide_other_aggregation: true,
         type: "line",
+        filterCompare: "OR",
+        compare: true,
       });
+  },
+  async pageViews() {
+    const data = await posthog
+      .query()
+      .addSeries("$pageview", {
+        label: "Page Views",
+        sampling: "unique_session",
+      })
+      .execute({
+        interval: "day",
+        date_from: "7d",
+        type: "number",
+        dataIndex: "time",
+        compare: true,
+        breakdown: "$browser",
+      });
+    return data;
   },
   questionsAskedByUser() {
     return posthog
       .query()
       .addSeries("Solved Question", {
         sampling: "total",
+        where: {
+          filters: {
+            compare: "icontains",
+            property: "$geoip_country_code",
+            value: "USAAAAA",
+          },
+          match: "all",
+        },
       })
       .addFilterGroup({
         filters: [
           {
-            compare: "icontains",
-            name: "Answer Overflow Account Id",
-            value: "5",
+            compare: "exact",
+            property: "Answer Overflow Account Id",
+            value: "523949187663134754",
           },
         ],
         match: "all",
       })
       .execute({
-        breakdownBy: "Answer Overflow Account Id",
+        breakdown: "Answer Overflow Account Id",
         type: "table",
-        groupBy: "day",
-        excludeOther: true,
+        interval: "day",
+        date_from: "7d",
+        breakdown_hide_other_aggregation: true,
+        compare: true,
       });
   },
 };
@@ -51,11 +103,14 @@ export type AnalyticsQueries = {
 export default async function DashboardSSR() {
   const pvb = await analyticsQueries.pageViewsByBrowser();
   const qau = await analyticsQueries.questionsAskedByUser();
+  const pvs = await analyticsQueries.pageViews();
+
   return (
     <DashboardExample
       data={{
         pageViewsByBrowser: pvb,
         questionsAskedByUser: qau,
+        pageViews: pvs,
       }}
     />
   );
