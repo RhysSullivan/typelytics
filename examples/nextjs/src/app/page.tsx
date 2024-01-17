@@ -47,7 +47,7 @@ export const analyticsQueries = {
     const data = await posthog
       .query()
       .addSeries("$pageview", {
-        label: "Page Views",
+        // label: "Page Views",
         sampling: "unique_session",
       })
       .execute({
@@ -56,8 +56,8 @@ export const analyticsQueries = {
         type: "number",
         dataIndex: "time",
         compare: true,
-        breakdown: "$browser",
       });
+    console.log(data.data["Current - $pageview"]);
     return data;
   },
   questionsAskedByUser() {

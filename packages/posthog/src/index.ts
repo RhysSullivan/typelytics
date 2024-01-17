@@ -555,12 +555,20 @@ class PostHogQuery<
       case "number": {
         const value = json.result[0]?.aggregated_value ?? 0;
 
+        const label =
+          this.series[0]?.label ??
+          json.result[0]?.label ??
+          defaultChartDataKeys[options.type];
         output = {
-          datakey:
-            this.series[0]?.label ??
-            json.result[0]?.label ??
-            defaultChartDataKeys[options.type],
-          data: value,
+          datakey: label,
+          data: options.compare
+            ? {
+                [`Previous - ${label}`]: json.result[1]?.aggregated_value ?? 0,
+                [`Current - ${label}`]: json.result[0]?.aggregated_value ?? 0,
+              }
+            : {
+                value,
+              },
         } as unknown as Output;
         break;
       }

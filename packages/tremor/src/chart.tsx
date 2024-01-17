@@ -43,10 +43,10 @@ export function Chart<
             : Type extends PieChartType
               ? PieChartProps<Labels, DataKey>
               : Type extends NumberChartType
-                ? NumberChart<DataKey>
+                ? NumberChart<Labels, DataKey>
                 : Type extends TableChartType
                   ? TableProps<Labels>
-                  : `!!! ${Type} chart is unsupported !!!`) & { type: Type },
+                  : `!!! ${Type} chart is unsupported !!!`) & { type: Type }
 ) {
   const type = props.type;
   switch (type) {
@@ -67,13 +67,34 @@ export function Chart<
       return <PieChart {...(props as PieChartProps<Labels, DataKey>)} />;
     }
     case "number":
-      const args = props as NumberChart<DataKey>;
-      return (
-        <>
-          <Text>{args.datakey}</Text>
-          <Metric>{args.data}</Metric>
-        </>
-      );
+      const args = props as NumberChart<Labels, DataKey>;
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      const keys = Object.keys(args.data);
+      if (keys.length !== 1) {
+        return (
+          <>
+            <Text>{args.datakey}</Text>
+            {keys
+              .filter((key) => key.includes("Current"))
+              .map((key) => (
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                <Metric key={key}>{args.data[key as Labels]}</Metric>
+              ))}
+          </>
+        );
+      } else {
+        return (
+          <>
+            <Text>{args.datakey}</Text>
+            <Metric>
+              {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                args.data[keys[0]! as Labels]
+              }
+            </Metric>
+          </>
+        );
+      }
     case "table":
       return <Table {...(props as TableProps<Labels>)} />;
   }

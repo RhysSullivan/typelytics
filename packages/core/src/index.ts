@@ -48,10 +48,11 @@ export type TimeSeriesChart<
 };
 
 export type NumberChart<
+  Entries extends string,
   DataKey extends string = DefaultDataKeyForChartType[ChartType],
 > = {
   datakey?: DataKey;
-  data: number;
+  data: Record<Entries, string>;
 };
 
 export type PieChart<
@@ -86,7 +87,7 @@ type ChartInternal<
 > = Type extends TimeSeriesChartTypes
   ? TimeSeriesChart<Labels, DataKey>
   : Type extends NumberChartType
-    ? NumberChart<DataKey>
+    ? NumberChart<Labels, DataKey>
     : Type extends PieChartType
       ? PieChart<Labels, DataKey>
       : Type extends BarTotalChartType
