@@ -28,7 +28,8 @@ export function Table<Labels extends string>(props: TableProps<Labels>) {
       <TableHead>
         <TableRow>
           {Array.from(labels).map((label) => {
-            if (props.skipLabel && label === "name") {
+            console.log(labels);
+            if (props.skipLabel && label === "label") {
               return null;
             }
             if (props.renderHeader) {
@@ -53,7 +54,7 @@ export function Table<Labels extends string>(props: TableProps<Labels>) {
         {data.map((item, index) => (
           <TableRow key={`${item.label} - ${index}`}>
             {Object.keys(item).map((key, index) => {
-              if (props.skipLabel && key === "name") {
+              if (props.skipLabel && key === "label") {
                 return null;
               }
               return (

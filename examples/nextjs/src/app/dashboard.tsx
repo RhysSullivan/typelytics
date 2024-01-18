@@ -82,35 +82,11 @@ export function DashboardExample(props: { data: AnalyticsQueries }) {
                 <Chart {...props.data.pageViews} />
               </Card>
             </div>
-            <div className="mt-6 max-w-[400px]">
+            <div className="mt-6 ">
               <Card>
                 <Chart
                   type={props.data.questionsAskedByUser.type}
                   data={props.data.questionsAskedByUser.data.slice(0, 10)}
-                  skipLabel
-                  // renderCell={{
-                  //   "Answer Overflow Account Id": ({ value }) => {
-                  //     return (
-                  //       <div className="flex items-center">
-                  //         <img
-                  //           src={`https://api.dicebear.com/7.x/notionists/svg?seed=${value}`}
-                  //           alt="avatar"
-                  //           className="max-w-[48px]"
-                  //         />
-                  //         <span className="ml-2 text-xl">
-                  //           {tenNames[Number(value) % tenNames.length]}
-                  //         </span>
-                  //       </div>
-                  //     );
-                  //   },
-                  //   value: ({ value }) => (
-                  //     <span className="text-xl">{value}</span>
-                  //   ),
-                  // }}
-                  // renderHeader={{
-                  //   value: "Questions Asked",
-                  //   "Answer Overflow Account Id": "User",
-                  // }}
                 />
               </Card>
             </div>

@@ -36,7 +36,7 @@ export const analyticsQueries = {
       .execute({
         interval: "day",
         breakdown: "$browser",
-        date_from: "7d",
+        date_from: "-48h",
         breakdown_hide_other_aggregation: true,
         type: "line",
         filterCompare: "OR",
@@ -52,46 +52,29 @@ export const analyticsQueries = {
       })
       .execute({
         interval: "day",
-        date_from: "7d",
+        date_from: "Last 14 days",
         type: "number",
         dataIndex: "time",
-        compare: true,
+        // compare: true,
       });
-    console.log(data.data["Current - $pageview"]);
     return data;
   },
-  questionsAskedByUser() {
-    return posthog
+  async questionsAskedByUser() {
+    const bu = await posthog
       .query()
       .addSeries("Solved Question", {
         sampling: "total",
-        where: {
-          filters: {
-            compare: "icontains",
-            property: "$geoip_country_code",
-            value: "USAAAAA",
-          },
-          match: "all",
-        },
-      })
-      .addFilterGroup({
-        filters: [
-          {
-            compare: "exact",
-            property: "Answer Overflow Account Id",
-            value: "523949187663134754",
-          },
-        ],
-        match: "all",
       })
       .execute({
-        breakdown: "Answer Overflow Account Id",
+        // breakdown: "Answer Overflow Account Id",
         type: "table",
+
         interval: "day",
-        date_from: "7d",
+        date_from: "Last 7 days",
         breakdown_hide_other_aggregation: true,
         compare: true,
       });
+    return bu;
   },
 };
 export type AnalyticsQueries = {

@@ -98,12 +98,12 @@ type PostHogExecuteOptions<
   dataIndex?: DataIndex;
   type: ChartType;
   filterCompare?: FilterLogicalOperator;
+  date_from?: Date | keyof DateMapping | null;
+  date_to?: Date | keyof DateMapping | null;
 } & Pick<
   PostHogInsightTrendParams<PropertyNames>,
   | "filter_test_accounts"
   | "sampling_factor"
-  | "date_from"
-  | "date_to"
   | "explicit_date"
   | "interval"
   | "breakdown"
@@ -301,6 +301,68 @@ type PropertyGroupFilter = {
   values: PropertyGroupFilterValue[];
 };
 
+type Year = number;
+type Month = number;
+type Day = number;
+type Date = `${Year}-${Month}-${Day}` | `-${number}h` | `-${number}d`;
+
+const dateMapping = {
+  Today: {
+    values: ["dStart"],
+    defaultInterval: "hour",
+  },
+  Yesterday: {
+    values: ["-1dStart", "-1dEnd"],
+    defaultInterval: "hour",
+  },
+  "Last 24 hours": {
+    values: ["-24h"],
+    defaultInterval: "hour",
+  },
+  "Last 48 hours": {
+    values: ["-48h"],
+    defaultInterval: "hour",
+  },
+  "Last 7 days": {
+    values: ["-7d"],
+    defaultInterval: "day",
+  },
+  "Last 14 days": {
+    values: ["-14d"],
+    defaultInterval: "day",
+  },
+  "Last 30 days": {
+    values: ["-30d"],
+    defaultInterval: "day",
+  },
+  "Last 90 days": {
+    values: ["-90d"],
+    defaultInterval: "day",
+  },
+  "Last 180 days": {
+    values: ["-180d"],
+    defaultInterval: "month",
+  },
+  "This month": {
+    values: ["mStart"],
+    defaultInterval: "day",
+  },
+  "Previous month": {
+    values: ["-1mStart", "-1mEnd"],
+    defaultInterval: "day",
+  },
+  "Year to date": {
+    values: ["yStart"],
+    defaultInterval: "month",
+  },
+  "All time": {
+    values: ["all"],
+    defaultInterval: "month",
+  },
+} as const;
+
+type DateMapping = typeof dateMapping;
+
 type PostHogInsightTrendParams<PropertyNames extends string> = {
   insight: "TRENDS";
   properties?: PropertyGroupFilter;
@@ -320,7 +382,9 @@ type PostHogInsightTrendParams<PropertyNames extends string> = {
   smoothing_intervals?: number;
   compare?: boolean;
   sampling_factor?: number | null;
+  // year-month-day
   date_from?: string | null;
+  // year-month-day
   date_to?: string | null;
   explicit_date?: boolean | string | null;
   interval?: IntervalType;
@@ -448,6 +512,15 @@ class PostHogQuery<
         };
       }),
     };
+    const date_from =
+      options.date_from && options.date_from in dateMapping
+        ? dateMapping[options.date_from as keyof DateMapping].values[0]
+        : options.date_from;
+    const date_to =
+      options.date_to && options.date_to in dateMapping
+        ? dateMapping[options.date_to as keyof DateMapping].values[0]
+        : options.date_to;
+
     const reqData: PostHogInsightTrendParams<
       Events[Series["name"]]["properties"][number]["name"]
     > = {
@@ -483,8 +556,8 @@ class PostHogQuery<
       breakdown_hide_other_aggregation:
         options.breakdown_hide_other_aggregation,
       breakdown_normalize_url: options.breakdown_normalize_url,
-      date_from: options.date_from,
-      date_to: options.date_to,
+      date_from,
+      date_to,
       explicit_date: options.explicit_date,
       interval: options.interval,
       sampling_factor: options.sampling_factor,
@@ -567,7 +640,7 @@ class PostHogQuery<
                 [`Current - ${label}`]: json.result[0]?.aggregated_value ?? 0,
               }
             : {
-                value,
+                [label]: value,
               },
         } as unknown as Output;
         break;
@@ -577,7 +650,7 @@ class PostHogQuery<
         json.result.forEach((result) => {
           const breakdownBy = options.breakdown;
           agg.push({
-            name: result.action.id,
+            label: applyCompareToLabel(result.action.id, result.compare_label),
             ...(breakdownBy
               ? {
                   [breakdownBy]: result.label.replace(
