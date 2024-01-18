@@ -28,6 +28,13 @@
 
 ### Create generic <Chart/> component
 
+### Variants:
+
+- Normal
+- Breakdown
+- Normal Compare
+- Breakdown Compare
+
 ### Publishing:
 
 - Publish core types package

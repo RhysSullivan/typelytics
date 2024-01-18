@@ -628,7 +628,6 @@ class PostHogQuery<
         break;
       }
       case "number": {
-        console.log(json.result);
         const value = json.result[0]?.aggregated_value ?? 0;
 
         const label =

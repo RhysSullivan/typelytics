@@ -1,100 +1,73 @@
 import { DashboardExample } from "./dashboard";
 import { PostHog } from "@typelytics/posthog";
+import { Chart } from "@typelytics/tremor";
 import { events } from "~/data/events";
 
 const posthog = new PostHog({
   events,
 });
-export const analyticsQueries = {
-  pageViewsByBrowser() {
-    return posthog
-      .query()
-      .addSeries("$pageview", {
-        sampling: "unique_session",
-      })
-      .addFilterGroup({
-        filters: {
-          property: "$browser",
-          compare: "icontains",
-          value: "chrome",
-        },
-        match: "any",
-      })
-      .addFilterGroup({
-        filters: [
-          {
-            compare: "icontains",
-            property: "$browser",
-            value: "safari",
-          },
-          {
-            compare: "icontains",
-            property: "$browser",
-            value: "firefox",
-          },
-        ],
-        match: "any",
-      })
-      .execute({
-        breakdown: "$browser",
-        date_from: "Last 180 days",
-        breakdown_hide_other_aggregation: true,
-        type: "pie",
-        filterCompare: "OR",
-        compare: true,
-      });
-  },
-  async pageViews() {
-    const data = await posthog
-      .query()
-      .addSeries("$pageview", {
-        // label: "Page Views",
-        sampling: "unique_session",
-      })
-      .execute({
-        interval: "day",
-        date_from: "Last 14 days",
-        type: "number",
-        dataIndex: "time",
-        // compare: true,
-      });
-    return data;
-  },
-  async questionsAskedByUser() {
-    const bu = await posthog
-      .query()
-      .addSeries("Solved Question", {
-        sampling: "total",
-      })
-      .execute({
-        breakdown: "Answer Overflow Account Id",
-        type: "table",
-        interval: "day",
-        date_from: "Last 7 days",
-        breakdown_hide_other_aggregation: true,
-        compare: true,
-      });
-    return bu;
-  },
-};
-export type AnalyticsQueries = {
-  [K in keyof typeof analyticsQueries]: Awaited<
-    ReturnType<(typeof analyticsQueries)[K]>
-  >;
-};
 
 export default async function DashboardSSR() {
-  const pvb = await analyticsQueries.pageViewsByBrowser();
-  const qau = await analyticsQueries.questionsAskedByUser();
-  const pvs = await analyticsQueries.pageViews();
+  const lineNormal = await posthog
+    .query()
+    .addSeries("$pageview", {
+      sampling: "total",
+    })
+    .execute({
+      type: "line",
+    });
+
+  lineNormal.data.at(0)?.$pageview;
+
+  const lineCompare = await posthog
+    .query()
+    .addSeries("$pageview", {
+      sampling: "total",
+    })
+    .execute({
+      type: "line",
+      compare: true,
+      date_from: "Last 7 days", // TODO: this one is weird
+    });
+  lineCompare.data;
+  lineCompare.data.at(0)?.["Previous - $pageview"];
+
+  const lineBreakdown = await posthog
+    .query()
+    .addSeries("$pageview", {
+      sampling: "total",
+    })
+    .execute({
+      type: "line",
+      breakdown: "$search_engine",
+    });
+
+  // edge cases
+
+  const multiBreakdown = await posthog
+    .query()
+    .addSeries("Asked Question", {
+      sampling: "total",
+    })
+    .addSeries("Solved Question", {
+      sampling: "total",
+    })
+    .execute({
+      type: "line",
+      breakdown_hide_other_aggregation: true,
+      breakdown: "Answer Overflow Account Id",
+    });
+
+  // it should be
+  // multiBreakdown.Asked Question <--- this is an array, same length
+  // multiBreakdown.Solved Question <--- this is an array, same length
 
   return (
-    <DashboardExample
-      data={{
-        pageViewsByBrowser: pvb,
-        questionsAskedByUser: qau,
-        pageViews: pvs,
-      }}
-    />
+    <>
+      <Chart {...lineNormal} />
+      <Chart {...lineCompare} />
+      <Chart {...lineBreakdown} />
+      <Chart {...multiBreakdown} />
+    </>
   );
 }
