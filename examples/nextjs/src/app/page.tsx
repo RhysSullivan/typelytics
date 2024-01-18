@@ -1,8 +1,10 @@
 import { DashboardExample } from "./dashboard";
 import { PostHog } from "@typelytics/posthog";
-import type { PostHogEvents } from "~/data/events";
+import { events } from "~/data/events";
 
-const posthog = new PostHog<PostHogEvents>();
+const posthog = new PostHog({
+  events,
+});
 export const analyticsQueries = {
   pageViewsByBrowser() {
     return posthog
@@ -34,11 +36,10 @@ export const analyticsQueries = {
         match: "any",
       })
       .execute({
-        interval: "day",
         breakdown: "$browser",
-        date_from: "-48h",
+        date_from: "Last 180 days",
         breakdown_hide_other_aggregation: true,
-        type: "line",
+        type: "pie",
         filterCompare: "OR",
         compare: true,
       });
@@ -66,9 +67,8 @@ export const analyticsQueries = {
         sampling: "total",
       })
       .execute({
-        // breakdown: "Answer Overflow Account Id",
+        breakdown: "Answer Overflow Account Id",
         type: "table",
-
         interval: "day",
         date_from: "Last 7 days",
         breakdown_hide_other_aggregation: true,

@@ -28,7 +28,6 @@ export function Table<Labels extends string>(props: TableProps<Labels>) {
       <TableHead>
         <TableRow>
           {Array.from(labels).map((label) => {
-            console.log(labels);
             if (props.skipLabel && label === "label") {
               return null;
             }

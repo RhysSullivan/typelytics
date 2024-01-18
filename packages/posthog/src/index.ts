@@ -114,10 +114,11 @@ type PostHogExecuteOptions<
   | "smoothing_intervals"
 >;
 
-type PostHogConfig = {
-  apiKey: string;
-  projectId: string;
-  url: string;
+type PostHogConfig<Events extends _ExtendOnlyEventMap> = {
+  apiKey?: string;
+  projectId?: string;
+  url?: string;
+  events: Events;
 };
 
 type TrendResult = {
@@ -176,7 +177,7 @@ function trendsApiResponseToTimeseries<
   input.result.forEach((result, resultIndex) => {
     result.data.forEach((value, i) => {
       const entry = output[i];
-      const date = result.labels[i];
+      const date = result.days[i];
       const label = applyCompareToLabel(
         series[resultIndex]?.label ?? result.label,
         result.compare_label
@@ -427,11 +428,9 @@ class PostHogQuery<
   const Series extends PostHogSeries<EventNames, Events>,
 > {
   constructor(
-    // can't make inferred types work without passing in events
-    private readonly events: Events,
     private readonly series: Series[],
     private readonly filterGroups: Filters[],
-    private readonly config: PostHogConfig
+    private readonly config: PostHogConfig<Events>
   ) {}
 
   addSeries<
@@ -447,7 +446,6 @@ class PostHogQuery<
     Series | (NewSeries & { name: NewEventName })
   > {
     return new PostHogQuery(
-      this.events,
       [
         ...this.series,
         {
@@ -464,7 +462,6 @@ class PostHogQuery<
     filter: NewFilter
   ): PostHogQuery<Events, EventNames, Filters | NewFilter, Series> {
     return new PostHogQuery<Events, EventNames, Filters | NewFilter, Series>(
-      this.events,
       this.series,
       [...this.filterGroups, filter],
       this.config
@@ -559,7 +556,12 @@ class PostHogQuery<
       date_from,
       date_to,
       explicit_date: options.explicit_date,
-      interval: options.interval,
+      interval:
+        !options.interval &&
+        options.date_from &&
+        options.date_from in dateMapping
+          ? dateMapping[options.date_from as keyof DateMapping].defaultInterval
+          : options.interval,
       sampling_factor: options.sampling_factor,
       compare: options.compare,
       formula: options.formula,
@@ -626,6 +628,7 @@ class PostHogQuery<
         break;
       }
       case "number": {
+        console.log(json.result);
         const value = json.result[0]?.aggregated_value ?? 0;
 
         const label =
@@ -676,8 +679,8 @@ class PostHogQuery<
 }
 
 export class PostHog<const Events extends _ExtendOnlyEventMap> {
-  private config: PostHogConfig;
-  constructor(opts?: Partial<PostHogConfig>) {
+  private config: PostHogConfig<Events>;
+  constructor(opts: PostHogConfig<Events>) {
     const apiKey = opts?.apiKey ?? process.env.POSTHOG_API_KEY;
 
     if (!apiKey) {
@@ -696,15 +699,11 @@ export class PostHog<const Events extends _ExtendOnlyEventMap> {
       apiKey,
       projectId,
       url,
+      events: opts.events,
     };
   }
 
   query() {
-    // ts has issues, we never use events so this is fine
-    // if you're reading this, no you're not
-    // unless you know how to solve it, then make a PR
-    // this is our secret
-    // don't snitch
-    return new PostHogQuery({} as Events, [], [], this.config);
+    return new PostHogQuery([], [], this.config);
   }
 }
