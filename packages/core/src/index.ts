@@ -44,41 +44,31 @@ export type TimeSeriesChart<
   Key extends string = DefaultDataKeyForChartType[ChartType],
 > = {
   datakey?: Key;
-  data: Record<Entries | Key, string>[];
-};
+} & Record<
+  Entries,
+  {
+    value: number | string;
+    datakey: Key;
+  }[]
+>;
 
 export type NumberChart<
   Entries extends string,
   DataKey extends string = DefaultDataKeyForChartType[ChartType],
 > = {
   datakey?: DataKey;
-  data: Record<Entries, string>;
-};
+} & Record<Entries, string>;
 
 export type PieChart<
-  T extends string,
+  Entries extends string,
   DataKey extends string = DefaultDataKeyForChartType[ChartType],
 > = {
   datakey?: DataKey;
-  data: {
-    label: T;
-    value: number;
-  }[];
-};
+} & Record<Entries, string>;
 
-export type BarTotalChart<T extends string> = {
-  data: {
-    name: T;
-    value: number;
-  }[];
-};
+export type BarTotalChart<T extends string> = Record<T, number[]>;
 
-export type Table<T extends string> = {
-  data: ({
-    label: T;
-    value: string;
-  } & Record<string, string>)[];
-};
+export type Table<T extends string> = Record<T, string[]>;
 
 type ChartInternal<
   Type extends ChartType,

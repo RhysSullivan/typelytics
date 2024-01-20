@@ -3,10 +3,10 @@ import {
   Chart,
   TimeSeriesChart,
   DefaultDataKeyForChartType,
-  PieChart,
-  defaultChartDataKeys,
-  BarTotalChart,
-  Table,
+  // PieChart,
+  // defaultChartDataKeys,
+  // BarTotalChart,
+  // Table,
 } from "@typelytics/core";
 
 const propertyMathTypes = [
@@ -171,34 +171,38 @@ function trendsApiResponseToTimeseries<
   }[],
   datakey: DataKey = "date" as DataKey
 ): TimeSeriesChart<Labels, DataKey> {
-  const output: TimeSeriesChart<Labels, DataKey>["data"] = new Array(
-    input.result[0]?.days.length
-  ) as TimeSeriesChart<Labels, DataKey>["data"];
+  const output: TimeSeriesChart<Labels, DataKey> = {
+    datakey,
+  } as TimeSeriesChart<Labels, DataKey>;
   input.result.forEach((result, resultIndex) => {
     result.data.forEach((value, i) => {
-      const entry = output[i];
       const date = result.days[i];
       const label = applyCompareToLabel(
         series[resultIndex]?.label ?? result.label,
         result.compare_label
-      );
+      ) as Labels;
       if (!date) {
         return;
       }
-      if (!entry) {
-        output[i] = {
-          [datakey]: date,
-          [label as Labels]: value,
-        } as TimeSeriesChart<Labels, DataKey>["data"][number];
+      if (!(label in output)) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        // @ts-expect-error TODO: Fix this
+        output[label] = [
+          {
+            datakey,
+            value,
+          },
+        ];
       } else {
-        entry[label as Labels] = value.toString();
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+        output[label].push({
+          datakey,
+          value,
+        });
       }
     });
   });
-  return {
-    data: output,
-    datakey,
-  };
+  return output;
 }
 
 export function toParams(
@@ -594,85 +598,87 @@ class PostHogQuery<
         output = trendsApiResponseToTimeseries(json, this.series) as Output;
         break;
       }
-      case "bar-total": {
-        const agg: BarTotalChart<Labels>["data"] = [];
-        json.result.forEach((result, resultIndex) => {
-          agg.push({
-            name: applyCompareToLabel(
-              this.series[resultIndex]?.label ?? result.label,
-              result.compare_label
-            ),
-            value: result.aggregated_value,
-          } as BarTotalChart<Labels>["data"][number]);
-        });
-        output = {
-          data: agg,
-        } as Output;
-        break;
-      }
-      case "pie": {
-        const agg: PieChart<Labels, DataKey>["data"] = [];
-        json.result.forEach((result, resultIndex) => {
-          agg.push({
-            label: applyCompareToLabel(
-              this.series[resultIndex]?.label ?? result.label,
-              result.compare_label
-            ),
-            value: result.aggregated_value,
-          } as PieChart<Labels, DataKey>["data"][number]);
-        });
-        output = {
-          data: agg,
-          datakey: options.dataIndex ?? defaultChartDataKeys[options.type],
-        } as unknown as Output;
-        break;
-      }
-      case "number": {
-        const value = json.result[0]?.aggregated_value ?? 0;
+      // case "bar-total": {
+      //   const agg: BarTotalChart<Labels>["data"] = [];
+      //   json.result.forEach((result, resultIndex) => {
+      //     agg.push({
+      //       name: applyCompareToLabel(
+      //         this.series[resultIndex]?.label ?? result.label,
+      //         result.compare_label
+      //       ),
+      //       value: result.aggregated_value,
+      //     } as BarTotalChart<Labels>["data"][number]);
+      //   });
+      //   output = {
+      //     data: agg,
+      //   } as Output;
+      //   break;
+      // }
+      // case "pie": {
+      //   const agg: PieChart<Labels, DataKey>["data"] = [];
+      //   json.result.forEach((result, resultIndex) => {
+      //     agg.push({
+      //       label: applyCompareToLabel(
+      //         this.series[resultIndex]?.label ?? result.label,
+      //         result.compare_label
+      //       ),
+      //       value: result.aggregated_value,
+      //     } as PieChart<Labels, DataKey>["data"][number]);
+      //   });
+      //   output = {
+      //     data: agg,
+      //     datakey: options.dataIndex ?? defaultChartDataKeys[options.type],
+      //   } as unknown as Output;
+      //   break;
+      // }
+      // case "number": {
+      //   const value = json.result[0]?.aggregated_value ?? 0;
 
-        const label =
-          this.series[0]?.label ??
-          json.result[0]?.label ??
-          defaultChartDataKeys[options.type];
-        output = {
-          datakey: label,
-          data: options.compare
-            ? {
-                [`Previous - ${label}`]: json.result[1]?.aggregated_value ?? 0,
-                [`Current - ${label}`]: json.result[0]?.aggregated_value ?? 0,
-              }
-            : {
-                [label]: value,
-              },
-        } as unknown as Output;
-        break;
-      }
-      case "table": {
-        const agg: Table<Labels>["data"] = [];
-        json.result.forEach((result) => {
-          const breakdownBy = options.breakdown;
-          agg.push({
-            label: applyCompareToLabel(result.action.id, result.compare_label),
-            ...(breakdownBy
-              ? {
-                  [breakdownBy]: result.label.replace(
-                    `${result.action.id} - `,
-                    ""
-                  ),
-                }
-              : {}),
-            value: result.aggregated_value,
-          } as unknown as Table<Labels>["data"][number]);
-        });
-        output = {
-          data: agg,
-          datakey: options.dataIndex ?? defaultChartDataKeys[options.type],
-        } as unknown as Output;
+      //   const label =
+      //     this.series[0]?.label ??
+      //     json.result[0]?.label ??
+      //     defaultChartDataKeys[options.type];
+      //   output = {
+      //     datakey: label,
+      //     data: options.compare
+      //       ? {
+      //           [`Previous - ${label}`]: json.result[1]?.aggregated_value ?? 0,
+      //           [`Current - ${label}`]: json.result[0]?.aggregated_value ?? 0,
+      //         }
+      //       : {
+      //           [label]: value,
+      //         },
+      //   } as unknown as Output;
+      //   break;
+      // }
+      // case "table": {
+      //   const agg: Table<Labels>["data"] = [];
+      //   json.result.forEach((result) => {
+      //     const breakdownBy = options.breakdown;
+      //     agg.push({
+      //       label: applyCompareToLabel(result.action.id, result.compare_label),
+      //       ...(breakdownBy
+      //         ? {
+      //             [breakdownBy]: result.label.replace(
+      //               `${result.action.id} - `,
+      //               ""
+      //             ),
+      //           }
+      //         : {}),
+      //       value: result.aggregated_value,
+      //     } as unknown as Table<Labels>["data"][number]);
+      //   });
+      //   output = {
+      //     data: agg,
+      //     datakey: options.dataIndex ?? defaultChartDataKeys[options.type],
+      //   } as unknown as Output;
 
-        break;
-      }
+      //   break;
+      // }
     }
+    // @ts-expect-error words
     output["type"] = options.type as ChartType;
+    // @ts-expect-error words
     return output;
   }
 }

@@ -17,8 +17,6 @@ export default async function DashboardSSR() {
       type: "line",
     });
 
-  lineNormal.data.at(0)?.$pageview;
-
   const lineCompare = await posthog
     .query()
     .addSeries("$pageview", {
@@ -29,7 +27,7 @@ export default async function DashboardSSR() {
       compare: true,
       date_from: "Last 7 days", // TODO: this one is weird
     });
-  lineCompare.data;
+  lineCompare["Current - $pageview"];
   lineCompare.data.at(0)?.["Previous - $pageview"];
 
   const lineBreakdown = await posthog
