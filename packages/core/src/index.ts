@@ -25,69 +25,55 @@ export type TimeSeriesChartTypes =
   | AreaChartType
   | CumulativeLineChartType;
 
-export const defaultChartDataKeys = {
-  line: "date",
-  bar: "date",
-  area: "date",
-  "cumulative-line": "date",
-  number: "value",
-  pie: "value",
-  "bar-total": "value",
-  table: "value",
-  // world: "value",
-} as const;
-
-export type DefaultDataKeyForChartType = typeof defaultChartDataKeys;
-
 export type TimeSeriesChart<
   Entries extends string,
-  Key extends string = DefaultDataKeyForChartType[ChartType],
+  IsBreakdown extends boolean,
 > = {
-  datakey?: Key;
-} & Record<
-  Entries,
-  {
-    value: number | string;
-    datakey: Key;
-  }[]
->;
+  data: Record<
+    Entries,
+    IsBreakdown extends true ? Record<string, number[]> : number[]
+  >;
+  labels: string[];
+};
 
 export type NumberChart<
   Entries extends string,
-  DataKey extends string = DefaultDataKeyForChartType[ChartType],
-> = {
-  datakey?: DataKey;
-} & Record<Entries, string>;
+  IsBreakdown extends boolean,
+> = Record<Entries, IsBreakdown extends true ? Record<string, string> : string>;
 
 export type PieChart<
   Entries extends string,
-  DataKey extends string = DefaultDataKeyForChartType[ChartType],
-> = {
-  datakey?: DataKey;
-} & Record<Entries, string>;
+  IsBreakdown extends boolean,
+> = Record<Entries, IsBreakdown extends true ? Record<string, string> : string>;
 
-export type BarTotalChart<T extends string> = Record<T, number[]>;
+export type BarTotalChart<
+  T extends string,
+  IsBreakdown extends boolean,
+> = Record<T, IsBreakdown extends true ? Record<string, string> : string>;
 
-export type Table<T extends string> = Record<T, string[]>;
+export type Table<T extends string, IsBreakdown extends boolean> = Record<
+  T,
+  IsBreakdown extends true ? Record<string, string> : string
+>;
 
 type ChartInternal<
   Type extends ChartType,
   Labels extends string,
-  DataKey extends string = DefaultDataKeyForChartType[ChartType],
+  IsBreakdown extends boolean,
 > = Type extends TimeSeriesChartTypes
-  ? TimeSeriesChart<Labels, DataKey>
+  ? TimeSeriesChart<Labels, IsBreakdown>
   : Type extends NumberChartType
-    ? NumberChart<Labels, DataKey>
+    ? NumberChart<Labels, IsBreakdown>
     : Type extends PieChartType
-      ? PieChart<Labels, DataKey>
+      ? PieChart<Labels, IsBreakdown>
       : Type extends BarTotalChartType
-        ? BarTotalChart<Labels>
+        ? BarTotalChart<Labels, IsBreakdown>
         : Type extends TableChartType
-          ? Table<Labels>
+          ? Table<Labels, IsBreakdown>
           : never;
 
 export type Chart<
   Type extends ChartType,
   Labels extends string,
-  DataKey extends string = DefaultDataKeyForChartType[ChartType],
-> = ChartInternal<Type, Labels, DataKey> & { type: Type };
+  IsBreakdown extends boolean,
+> = { type: Type } & ChartInternal<Type, Labels, IsBreakdown>;

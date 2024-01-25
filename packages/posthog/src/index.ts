@@ -2,9 +2,7 @@ import {
   ChartType,
   Chart,
   TimeSeriesChart,
-  DefaultDataKeyForChartType,
   // PieChart,
-  // defaultChartDataKeys,
   // BarTotalChart,
   // Table,
 } from "@typelytics/core";
@@ -91,11 +89,7 @@ export type PostHogSeries<
 
 type IntervalType = "hour" | "day" | "week" | "month";
 
-type PostHogExecuteOptions<
-  PropertyNames extends string,
-  DataIndex extends string,
-> = {
-  dataIndex?: DataIndex;
+type PostHogExecuteOptions<PropertyNames extends string> = {
   type: ChartType;
   filterCompare?: FilterLogicalOperator;
   date_from?: Date | keyof DateMapping | null;
@@ -127,6 +121,7 @@ type TrendResult = {
   days: string[];
   action: {
     id: string;
+    order: number;
   };
   dates?: string[];
   label: string;
@@ -162,45 +157,34 @@ function applyCompareToLabel<T extends string>(
 
 function trendsApiResponseToTimeseries<
   Labels extends string,
-  DataKey extends string,
+  IsBreakdown extends boolean,
 >(
   input: TrendAPIResponse,
-  series: {
+  isBreakdown: IsBreakdown,
+  allSeries: {
     name: string;
     label?: string;
-  }[],
-  datakey: DataKey = "date" as DataKey
-): TimeSeriesChart<Labels, DataKey> {
-  const output: TimeSeriesChart<Labels, DataKey> = {
-    datakey,
-  } as TimeSeriesChart<Labels, DataKey>;
-  input.result.forEach((result, resultIndex) => {
-    result.data.forEach((value, i) => {
-      const date = result.days[i];
-      const label = applyCompareToLabel(
-        series[resultIndex]?.label ?? result.label,
-        result.compare_label
-      ) as Labels;
-      if (!date) {
-        return;
-      }
-      if (!(label in output)) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        // @ts-expect-error TODO: Fix this
-        output[label] = [
-          {
-            datakey,
-            value,
-          },
-        ];
-      } else {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-        output[label].push({
-          datakey,
-          value,
-        });
-      }
-    });
+  }[]
+): TimeSeriesChart<Labels, IsBreakdown> {
+  const output: TimeSeriesChart<string, IsBreakdown> = {
+    data: {},
+    labels: input.result.at(0)?.labels ?? [],
+  };
+
+  input.result.forEach((result) => {
+    const series = allSeries.at(result.action.order);
+    if (!series) {
+      console.error("No series found for order", result.action.order);
+      return;
+    }
+    const label = applyCompareToLabel(
+      series.label ?? series.name,
+      result.compare_label
+    ) as Labels;
+    if (isBreakdown) {
+    } else {
+      (output as TimeSeriesChart<string, false>)["data"][label] = result.data;
+    }
   });
   return output;
 }
@@ -473,16 +457,11 @@ class PostHogQuery<
   }
 
   async execute<
-    const DataKey extends string,
     ExecutionOptions extends PostHogExecuteOptions<
-      Events[Series["name"]]["properties"][number]["name"],
-      DataKey
+      Events[Series["name"]]["properties"][number]["name"]
     >,
     ChartType extends ExecutionOptions["type"],
     Labels extends AllLabelsOrNames<Series["name"], Events, Series>,
-    A extends ExecutionOptions["dataIndex"] extends string
-      ? ExecutionOptions["dataIndex"]
-      : DefaultDataKeyForChartType[ExecutionOptions["type"]],
     Output extends Chart<
       ChartType,
       ExecutionOptions["breakdown"] extends string
@@ -490,7 +469,7 @@ class PostHogQuery<
         : ExecutionOptions["compare"] extends boolean
           ? `Previous - ${Labels}` | `Current - ${Labels}`
           : Labels,
-      A
+      ExecutionOptions["breakdown"] extends true ? true : false
     >,
   >(options: ExecutionOptions): Promise<Output> {
     const properties: PropertyGroupFilter = {
@@ -595,7 +574,13 @@ class PostHogQuery<
       case "area":
       case "cumulative-line":
       case "line": {
-        output = trendsApiResponseToTimeseries(json, this.series) as Output;
+        output = {
+          ...trendsApiResponseToTimeseries(
+            json,
+            !!options.breakdown,
+            this.series
+          ),
+        } as unknown as Output;
         break;
       }
       // case "bar-total": {
