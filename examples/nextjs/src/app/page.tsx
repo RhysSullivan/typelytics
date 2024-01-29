@@ -7,67 +7,30 @@ const posthog = new PostHog({
   events,
 });
 
-const Func = (props: { render: () => React.ReactNode }) => props.render();
-
 export default async function DashboardSSR() {
   const lineNormal = await posthog
     .query()
-    .addSeries("Asked Question", {
+    .addSeries("$pageview", {
       sampling: "total",
-    })
-    .addSeries("Solved Question", {
-      sampling: "total",
+      where: {
+        match: "AND",
+        filters: [
+          {
+            compare: "icontains",
+            property: "$browser",
+            value: "Chrome",
+          },
+        ],
+      },
     })
     .execute({
       compare: true,
       type: "line",
-      breakdown: "Server Id",
+      breakdown: "$browser",
     });
 
-  // console.log(lineNormal.results.data.$pageview);
+  console.log(lineNormal.results);
 
-  const lineCompare = await posthog
-    .query()
-    .addSeries("$pageview", {
-      sampling: "total",
-    })
-    .execute({
-      type: "line",
-      compare: true,
-      date_from: "Last 7 days", // TODO: this one is weird
-    });
-  // console.log(lineCompare.results.data["Current - $pageview"]);
-
-  const lineBreakdown = await posthog
-    .query()
-    .addSeries("$pageview", {
-      sampling: "total",
-    })
-    .execute({
-      type: "line",
-      breakdown: "$search_engine",
-    });
-
-  // edge cases
-
-  const multiBreakdown = await posthog
-    .query()
-    .addSeries("Asked Question", {
-      sampling: "total",
-    })
-    .addSeries("Solved Question", {
-      sampling: "total",
-    })
-    .execute({
-      type: "line",
-      breakdown_hide_other_aggregation: true,
-      breakdown: "Answer Overflow Account Id",
-    });
-  console.log(lineNormal);
-  // it should be
-  // multiBreakdown.Asked Question <--- this is an array, same length
-  // multiBreakdown.Solved Question <--- this is an array, same length
-  // console.log("data", lineNormal.results.data);
   return (
     <>
       <Chart {...lineNormal} />

@@ -3,12 +3,10 @@
 import {
   // AreaChartType,
   BarChartType,
-  BarTotalChartType,
   ChartType,
   CumulativeLineChartType,
   LineChartType,
-  NumberChart,
-  NumberChartType,
+
   // PieChartType,
   // TableChartType,
 } from "@typelytics/core";
@@ -44,17 +42,7 @@ export function Chart<
       ? LineChartProps<Labels, IsBreakdown>
       : Type extends BarChartType
         ? BarChartProps<Labels, IsBreakdown>
-        : Type extends BarTotalChartType
-          ? // ? BarTotalChartProps<Labels>
-            // : Type extends AreaChartType
-            AreaChartProps<Labels, IsBreakdown>
-          : // : Type extends PieChartType
-            //   ? PieChartProps<Labels, IsBreakdown>
-            Type extends NumberChartType
-            ? NumberChart<Labels, IsBreakdown>
-            : // : Type extends TableChartType
-              //   ? TableProps<Labels>
-              `!!! ${Type} chart is unsupported !!!`) & { type: Type }
+        : `!!! ${Type} chart is unsupported !!!`) & { type: Type }
 ) {
   const type = props.type;
   switch (type) {

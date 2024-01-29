@@ -25,55 +25,22 @@ export type TimeSeriesChartTypes =
   | AreaChartType
   | CumulativeLineChartType;
 
-export type TimeSeriesChart<
-  Entries extends string,
-  IsBreakdown extends boolean,
-> = {
-  data: Record<
-    Entries,
-    IsBreakdown extends true ? Record<string, number[]> : number[]
-  >;
+export type ChartData = {
+  data: number[];
+  aggregated_value: number;
+  days: string[];
   labels: string[];
+  label: string;
 };
-
-export type NumberChart<
-  Entries extends string,
-  IsBreakdown extends boolean,
-> = Record<Entries, IsBreakdown extends true ? Record<string, string> : string>;
-
-export type PieChart<
-  Entries extends string,
-  IsBreakdown extends boolean,
-> = Record<Entries, IsBreakdown extends true ? Record<string, string> : string>;
-
-export type BarTotalChart<
-  T extends string,
-  IsBreakdown extends boolean,
-> = Record<T, IsBreakdown extends true ? Record<string, string> : string>;
-
-export type Table<T extends string, IsBreakdown extends boolean> = Record<
-  T,
-  IsBreakdown extends true ? Record<string, string> : string
->;
-
-type ChartInternal<
-  Type extends ChartType,
-  Labels extends string,
-  IsBreakdown extends boolean,
-> = Type extends TimeSeriesChartTypes
-  ? TimeSeriesChart<Labels, IsBreakdown>
-  : Type extends NumberChartType
-    ? NumberChart<Labels, IsBreakdown>
-    : Type extends PieChartType
-      ? PieChart<Labels, IsBreakdown>
-      : Type extends BarTotalChartType
-        ? BarTotalChart<Labels, IsBreakdown>
-        : Type extends TableChartType
-          ? Table<Labels, IsBreakdown>
-          : never;
 
 export type Chart<
   Type extends ChartType,
   Labels extends string,
   IsBreakdown extends boolean,
-> = { type: Type } & ChartInternal<Type, Labels, IsBreakdown>;
+> = {
+  type: Type;
+  results: Record<
+    Labels,
+    IsBreakdown extends false ? ChartData : Record<string, ChartData>
+  >;
+};

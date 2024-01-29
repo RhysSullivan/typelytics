@@ -1,7 +1,6 @@
 import {
   ChartType,
   Chart,
-  TimeSeriesChart,
   // PieChart,
   // BarTotalChart,
   // Table,
@@ -72,7 +71,7 @@ export type PostHogFilterGroup<
   T extends string,
   Events extends _ExtendOnlyEventMap,
 > = {
-  match: "all" | "any";
+  match: "AND" | "OR";
   filters: PostHogFilter<T, Events> | PostHogFilter<T, Events>[];
 };
 
@@ -82,7 +81,7 @@ export type PostHogSeries<
 > = {
   name: T;
   label?: string;
-  where?: PostHogFilterGroup<T, Events> | PostHogFilterGroup<T, Events>[];
+  where?: PostHogFilterGroup<T, Events>;
   sampling: PropertyMathType | PostHogSamplingOptions;
   math_property?: Events[T]["properties"][number]["name"];
 };
@@ -148,45 +147,10 @@ function applyCompareToLabel<T extends string>(
   label: T,
   compare_label: string | undefined
 ) {
-  return `${
-    compare_label
-      ? compare_label.slice(0, 1).toUpperCase() + compare_label.slice(1) + " - "
-      : ""
-  }${label}`;
-}
-
-function trendsApiResponseToTimeseries<
-  Labels extends string,
-  IsBreakdown extends boolean,
->(
-  input: TrendAPIResponse,
-  isBreakdown: IsBreakdown,
-  allSeries: {
-    name: string;
-    label?: string;
-  }[]
-): TimeSeriesChart<Labels, IsBreakdown> {
-  const output: TimeSeriesChart<string, IsBreakdown> = {
-    data: {},
-    labels: input.result.at(0)?.labels ?? [],
-  };
-
-  input.result.forEach((result) => {
-    const series = allSeries.at(result.action.order);
-    if (!series) {
-      console.error("No series found for order", result.action.order);
-      return;
-    }
-    const label = applyCompareToLabel(
-      series.label ?? series.name,
-      result.compare_label
-    ) as Labels;
-    if (isBreakdown) {
-    } else {
-      (output as TimeSeriesChart<string, false>)["data"][label] = result.data;
-    }
-  });
-  return output;
+  return `${compare_label
+    ? compare_label.slice(0, 1).toUpperCase() + compare_label.slice(1) + " - "
+    : ""
+    }${label}`;
 }
 
 export function toParams(
@@ -268,26 +232,25 @@ const propertyOperators = [
 ] as const;
 type PropertyOperator = (typeof propertyOperators)[number];
 
-type BasePropertyFilter = {
-  key: string;
+type BasePropertyFilter<T extends string = string> = {
+  key: T;
   value?: PropertyFilterValue;
-  label?: string; // TODO: What is label?
   type?: "event";
 };
 
-type EventPropertyFilter = BasePropertyFilter & {
+type EventPropertyFilter<T extends string = string> = BasePropertyFilter<T> & {
   type: "event";
   operator: PropertyOperator;
 };
 
-type PropertyGroupFilterValue = {
+type PropertyGroupFilterValue<T extends string = string> = {
   type: FilterLogicalOperator;
-  values: (EventPropertyFilter | PropertyGroupFilterValue)[];
+  values: (EventPropertyFilter<T> | PropertyGroupFilterValue<T>)[];
 };
 
-type PropertyGroupFilter = {
+type PropertyGroupFilter<T extends string = string> = {
   type: FilterLogicalOperator;
-  values: PropertyGroupFilterValue[];
+  values: PropertyGroupFilterValue<T>[];
 };
 
 type Year = number;
@@ -405,8 +368,8 @@ type AllLabelsOrNames<
   >,
 > = {
   [K in keyof Series as "label"]: Series["label"] extends string
-    ? Series["label"]
-    : Series["name"];
+  ? Series["label"]
+  : Series["name"];
 }["label"];
 
 class PostHogQuery<
@@ -419,7 +382,7 @@ class PostHogQuery<
     private readonly series: Series[],
     private readonly filterGroups: Filters[],
     private readonly config: PostHogConfig<Events>
-  ) {}
+  ) { }
 
   addSeries<
     const NewEventName extends EventNames,
@@ -465,32 +428,33 @@ class PostHogQuery<
     Output extends Chart<
       ChartType,
       ExecutionOptions["breakdown"] extends string
-        ? string
-        : ExecutionOptions["compare"] extends boolean
-          ? `Previous - ${Labels}` | `Current - ${Labels}`
-          : Labels,
+      ? string
+      : ExecutionOptions["compare"] extends boolean
+      ? `Previous - ${Labels}` | `Current - ${Labels}`
+      : Labels,
       ExecutionOptions["breakdown"] extends true ? true : false
     >,
   >(options: ExecutionOptions): Promise<Output> {
+
+    const toPostHogPropertyFilter = (group: PostHogFilterGroup<string, Events>) => {
+      const asArray = Array.isArray(group.filters) ? group.filters : [group.filters];
+      return {
+        type: group.match,
+        values: asArray.map(
+          (filter) =>
+            ({
+              key: filter.property,
+              operator: filter.compare,
+              value: filter.value,
+              type: "event",
+            }) satisfies EventPropertyFilter
+        ),
+      };
+    }
+
     const properties: PropertyGroupFilter = {
       type: options.filterCompare ?? "AND",
-      values: this.filterGroups.map((filterGroup) => {
-        const vals = Array.isArray(filterGroup.filters)
-          ? filterGroup.filters
-          : [filterGroup.filters];
-        return {
-          type: filterGroup.match === "all" ? "AND" : "OR",
-          values: vals.map(
-            (filter) =>
-              ({
-                key: filter.property,
-                operator: filter.compare,
-                value: filter.value,
-                type: "event",
-              }) satisfies EventPropertyFilter
-          ),
-        };
-      }),
+      values: Array.isArray(this.filterGroups) ? this.filterGroups.map(toPostHogPropertyFilter) : [toPostHogPropertyFilter(this.filterGroups)],
     };
     const date_from =
       options.date_from && options.date_from in dateMapping
@@ -522,6 +486,7 @@ class PostHogQuery<
           order: index,
           type: "events",
           math: scenario.sampling,
+          properties: scenario.where ? toPostHogPropertyFilter(scenario.where) : undefined,
           math_property: propertyMathSet.has(scenario.sampling as string)
             ? scenario.math_property
             : undefined,
@@ -541,8 +506,8 @@ class PostHogQuery<
       explicit_date: options.explicit_date,
       interval:
         !options.interval &&
-        options.date_from &&
-        options.date_from in dateMapping
+          options.date_from &&
+          options.date_from in dateMapping
           ? dateMapping[options.date_from as keyof DateMapping].defaultInterval
           : options.interval,
       sampling_factor: options.sampling_factor,
@@ -568,103 +533,74 @@ class PostHogQuery<
       );
     }
     const json = (await fetchResponse.json()) as TrendAPIResponse;
-    let output: Output;
-    switch (options.type) {
-      case "bar":
-      case "area":
-      case "cumulative-line":
-      case "line": {
-        output = {
-          ...trendsApiResponseToTimeseries(
-            json,
-            !!options.breakdown,
-            this.series
-          ),
-        } as unknown as Output;
-        break;
-      }
-      // case "bar-total": {
-      //   const agg: BarTotalChart<Labels>["data"] = [];
-      //   json.result.forEach((result, resultIndex) => {
-      //     agg.push({
-      //       name: applyCompareToLabel(
-      //         this.series[resultIndex]?.label ?? result.label,
-      //         result.compare_label
-      //       ),
-      //       value: result.aggregated_value,
-      //     } as BarTotalChart<Labels>["data"][number]);
-      //   });
-      //   output = {
-      //     data: agg,
-      //   } as Output;
-      //   break;
-      // }
-      // case "pie": {
-      //   const agg: PieChart<Labels, DataKey>["data"] = [];
-      //   json.result.forEach((result, resultIndex) => {
-      //     agg.push({
-      //       label: applyCompareToLabel(
-      //         this.series[resultIndex]?.label ?? result.label,
-      //         result.compare_label
-      //       ),
-      //       value: result.aggregated_value,
-      //     } as PieChart<Labels, DataKey>["data"][number]);
-      //   });
-      //   output = {
-      //     data: agg,
-      //     datakey: options.dataIndex ?? defaultChartDataKeys[options.type],
-      //   } as unknown as Output;
-      //   break;
-      // }
-      // case "number": {
-      //   const value = json.result[0]?.aggregated_value ?? 0;
+    if (options.breakdown) {
+      const output: Chart<ChartType, string, true> = {
+        type: options.type as ChartType,
+        results: {},
+      };
+      json.result.forEach((result) => {
+        const series = this.series.at(result.action.order);
+        if (!series) {
+          console.error(`Series ${result.action.order} not found`);
+          return;
+        }
+        const existing =
+          output.results[
+          applyCompareToLabel(
+            series.label ?? series.name,
+            result.compare_label
+          )
+          ];
 
-      //   const label =
-      //     this.series[0]?.label ??
-      //     json.result[0]?.label ??
-      //     defaultChartDataKeys[options.type];
-      //   output = {
-      //     datakey: label,
-      //     data: options.compare
-      //       ? {
-      //           [`Previous - ${label}`]: json.result[1]?.aggregated_value ?? 0,
-      //           [`Current - ${label}`]: json.result[0]?.aggregated_value ?? 0,
-      //         }
-      //       : {
-      //           [label]: value,
-      //         },
-      //   } as unknown as Output;
-      //   break;
-      // }
-      // case "table": {
-      //   const agg: Table<Labels>["data"] = [];
-      //   json.result.forEach((result) => {
-      //     const breakdownBy = options.breakdown;
-      //     agg.push({
-      //       label: applyCompareToLabel(result.action.id, result.compare_label),
-      //       ...(breakdownBy
-      //         ? {
-      //             [breakdownBy]: result.label.replace(
-      //               `${result.action.id} - `,
-      //               ""
-      //             ),
-      //           }
-      //         : {}),
-      //       value: result.aggregated_value,
-      //     } as unknown as Table<Labels>["data"][number]);
-      //   });
-      //   output = {
-      //     data: agg,
-      //     datakey: options.dataIndex ?? defaultChartDataKeys[options.type],
-      //   } as unknown as Output;
-
-      //   break;
-      // }
+        if (!existing) {
+          output.results[
+            applyCompareToLabel(
+              series.label ?? series.name,
+              result.compare_label
+            )
+          ] = {
+            [result.label]: {
+              aggregated_value: result.aggregated_value ?? result.count,
+              data: result.data,
+              days: result.days,
+              labels: result.labels,
+              label: result.label,
+            },
+          };
+        } else {
+          existing[result.label] = {
+            aggregated_value: result.aggregated_value ?? result.count,
+            data: result.data,
+            days: result.days,
+            labels: result.labels,
+            label: result.label,
+          };
+        }
+      });
+      return output as Output;
+    } else {
+      const output: Chart<ChartType, string, false> = {
+        type: options.type as ChartType,
+        results: {},
+      };
+      json.result.forEach((result) => {
+        const series = this.series.at(result.action.order);
+        if (!series) {
+          console.error(`Series ${result.action.order} not found`);
+          return;
+        }
+        output.results[
+          applyCompareToLabel(series.label ?? series.name, result.compare_label)
+        ] = {
+          data: result.data,
+          days: result.days,
+          labels: result.labels,
+          label: result.label,
+          aggregated_value: result.aggregated_value ?? result.count,
+        };
+      });
+      return output as Output;
     }
-    // @ts-expect-error words
-    output["type"] = options.type as ChartType;
-    // @ts-expect-error words
-    return output;
   }
 }
 
