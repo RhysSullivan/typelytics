@@ -1,6 +1,6 @@
 {
   "name": "@typelytics/posthog",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "author": "Rhys Sullivan",
   "license": "MIT",
   "main": "./dist/index.js",
@@ -24,6 +24,6 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
-    "@typelytics/core": "0.2.0"
+    "@typelytics/core": "0.1.0"
   }
 }
