@@ -1,6 +1,6 @@
 {
   "name": "@typelytics/tremor",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "Rhys Sullivan",
   "license": "MIT",
   "main": "./dist/index.js",
@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "@tremor/react": "^3.11.1",
-    "@typelytics/core": "0.1.0",
+    "@typelytics/core": "0.1.1",
     "react": "18.2.0"
   }
 }

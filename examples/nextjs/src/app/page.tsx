@@ -7,24 +7,17 @@ const posthog = new PostHog({
   events,
 });
 
-export default async function DashboardSSR() {
+export default async function Demo() {
   const query = await posthog
     .query()
-    .addSeries("$pageview", {
+    .addSeries("Solved Question", {
       sampling: "unique_session",
     })
-    .addFilterGroup({
-      filters: {
-        compare: "icontains",
-        property: "$browser",
-        value: "Chrome",
-      },
-      match: "AND",
+    .addSeries("Asked Question", {
+      sampling: "unique_session",
     })
     .execute({
-      type: "area",
-      compare: true,
-      breakdown: "$browser",
+      type: "pie",
     });
 
   return (

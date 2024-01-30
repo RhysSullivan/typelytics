@@ -1,4 +1,3 @@
-"use client";
 import { Chart, ChartData, TimeSeriesChartTypes } from "@typelytics/core";
 import {
   LineChart as TremorLineChart,

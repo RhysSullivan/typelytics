@@ -1,6 +1,6 @@
 {
   "name": "@typelytics/posthog-generator",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "Rhys Sullivan",
   "license": "MIT",
   "type": "module",
@@ -24,6 +24,6 @@
   },
   "dependencies": {
     "@clack/prompts": "^0.7.0",
-    "@typelytics/posthog": "0.1.0"
+    "@typelytics/posthog": "0.1.1"
   }
 }
