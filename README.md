@@ -11,5 +11,4 @@ Credits:
 
 - Template from [Acme Corp](https://github.com/juliusmarminge/acme-corp-lib)
 - Homepage inspired from [tRPC](https://trpc.io/)
-- [Tremor](https://www.tremor.so/docs/getting-started/installation)
-- Docs site inspired by
+- Wrapped charting library of [Tremor](https://www.tremor.so/docs/getting-started/installation)
