@@ -64,7 +64,7 @@ export function toTremorTimeseriesData<
       } else {
         Object.values(val).forEach((valEntry: ChartData) => {
           const num = valEntry.data[index];
-          if (num) output[`${key} - ${valEntry.label}`] = num;
+          if (num) output[valEntry.label] = num;
           output["label"] = labels[index]!;
         });
       }

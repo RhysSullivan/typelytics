@@ -77,7 +77,7 @@ export default function Home() {
         </div>
 
         <video
-          src="/demo.mp4"
+          src="/typelytics_demo.mp4"
           className="block w-full mx-auto max-w-60rem shadow-2xl rounded overflow-hidden"
           autoPlay
           controls
@@ -85,7 +85,7 @@ export default function Home() {
           muted
           playsInline
         >
-          <source src="/demo.mp4" type="video/mp4" />
+          <source src="/typelytics_demo.mp4" type="video/mp4" />
         </video>
 
         <div className="max-w-3xl text-center">

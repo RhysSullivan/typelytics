@@ -12,61 +12,15 @@ Here is a basic example of how to use the query client.
 We use the type import rather than passing in an object of event types in order to not have to import all of the events.
 
 ```ts
-import type { PostHogEvents } from "~/data/events";
+import { events } from "~/data/events";
 import { PostHog } from "@typelytics/posthog";
 
-const posthog = new PostHog<PostHogEvents>();
-//                          ^ Make sure to pass in your events type here
-const data = await posthog
+const query = await posthog
   .query()
   .addSeries("$pageview", {
-    sampling: "total",
+    sampling: "unique_session",
   })
   .execute({
-    groupBy: "day",
-    type: "line",
-  });
-```
-
-## Advanced Usage
-
-```ts
-const posthog = new PostHog<PostHogEvents>();
-const data = await posthog
-  .query()
-  .addSeries("$pageview", {
-    sampling: "total",
-    where: {
-      filters: {
-        compare: "equals",
-        name: "$search_engine",
-        value: "/about",
-      },
-      match: "all",
-    },
-  })
-  .addSeries("Asked Question", {
-    sampling: "dau",
-  })
-  .addFilterGroup({
-    match: "all",
-    filters: {
-      name: "$current_url",
-      compare: "equals",
-      value: "US",
-    },
-  })
-  .addFilterGroup({
-    match: "all",
-    filters: {
-      compare: "equals",
-      name: "$pathname",
-      value: "/about",
-    },
-  })
-  .execute({
-    groupBy: "day",
-    type: "line",
-    breakdownBy: "Answer Overflow Account Id",
+    type: "area",
   });
 ```

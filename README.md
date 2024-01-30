@@ -1,17 +1,17 @@
-# Acme Corp (Library Edition)
+# Typelytics
 
 Add type-safe personalized dashboard from your analytics service in minutes.
+
+[![](./docs/public/typelytics_demo.mp4)](./docs/public/typelytics_demo.mp4)
 
 Compatible with:
 
 - PostHog
+- Tremor
 
 Credits:
 
-- Template from [Acme Corp]()
-- Tremor by ...
+- Template from [Acme Corp](https://github.com/juliusmarminge/acme-corp-lib)
+- Homepage inspired from [tRPC](https://trpc.io/)
+- [Tremor](https://www.tremor.so/docs/getting-started/installation)
 - Docs site inspired by
-
-## Package Philosophy
-
-We should take on the complexity of rendering the data so the consumer doesn't have to. This may include having to write ugly generics or abusing `as` casts to get the data into the right shape.
