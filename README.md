@@ -2,8 +2,6 @@
 
 Add type-safe personalized dashboard from your analytics service in minutes.
 
-[![](./docs/public/typelytics_demo.mp4)](./docs/public/typelytics_demo.mp4)
-
 Compatible with:
 
 - PostHog
