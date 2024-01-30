@@ -19,10 +19,9 @@ export default async function Demo() {
     .execute({
       type: "pie",
     });
-
-  return (
+  query.results.return(
     <>
       <DashboardExample data={<Chart {...query} />} />
-    </>
+    </>,
   );
 }
