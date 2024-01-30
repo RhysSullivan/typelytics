@@ -1,14 +1,14 @@
 "use client";
-// import { Metric, Text } from "@tremor/react";
 import {
-  // AreaChartType,
+  AreaChartType,
   BarChartType,
+  BarTotalChartType,
   ChartType,
   CumulativeLineChartType,
   LineChartType,
-
-  // PieChartType,
-  // TableChartType,
+  NumberChartType,
+  PieChartType,
+  TableChartType,
 } from "@typelytics/core";
 import {
   LineChart,
@@ -18,18 +18,16 @@ import {
   BarChartProps,
   AreaChartProps,
 } from "./timeseries";
-// import {
-//   // PieChart,
-//   PieChartProps,
-// } from "./pie";
-// import {
-//   // BarTotalChart,
-//   BarTotalChartProps,
-// } from "./bar-total";
-// import {
-//   // Table,
-//   TableProps,
-// } from "./table";
+import {
+  BarTotalChart,
+  BarTotalChartProps,
+  NumberChart,
+  NumberChartProps,
+  PieChart,
+  PieChartProps,
+  Table,
+  TableProps,
+} from "./cumulative";
 
 export function Chart<
   const Type extends ChartType,
@@ -42,69 +40,48 @@ export function Chart<
       ? LineChartProps<Labels, IsBreakdown>
       : Type extends BarChartType
         ? BarChartProps<Labels, IsBreakdown>
-        : `!!! ${Type} chart is unsupported !!!`) & { type: Type }
+        : Type extends AreaChartType
+          ? AreaChartProps<Labels, IsBreakdown>
+          : Type extends BarTotalChartType
+            ? BarTotalChartProps<Labels, IsBreakdown>
+            : Type extends PieChartType
+              ? PieChartProps<Labels, IsBreakdown>
+              : Type extends TableChartType
+                ? TableProps<Labels, IsBreakdown>
+                : Type extends NumberChartType
+                  ? NumberChartProps<Labels, IsBreakdown>
+                  : `!!!${Type} is not supported!`) & { type: Type }
 ) {
   const type = props.type;
   switch (type) {
+    // Time series
     case "cumulative-line":
     case "line": {
       return <LineChart {...(props as LineChartProps<Labels, IsBreakdown>)} />;
     }
     case "bar": {
-      return (
-        <BarChart
-          {...(props as unknown as BarChartProps<Labels, IsBreakdown>)}
-        />
-      );
+      return <BarChart {...(props as BarChartProps<Labels, IsBreakdown>)} />;
     }
-    // case "bar-total": {
-    //   return (
-    //     <BarTotalChart
-    //       {...(props as unknown as BarTotalChartProps<Labels, IsBreakdown>)}
-    //     />
-    //   );
-    // }
     case "area": {
+      return <AreaChart {...(props as AreaChartProps<Labels, IsBreakdown>)} />;
+    }
+    // Cumulative
+    case "bar-total": {
       return (
-        <AreaChart
-          {...(props as unknown as AreaChartProps<Labels, IsBreakdown>)}
+        <BarTotalChart
+          {...(props as BarTotalChartProps<Labels, IsBreakdown>)}
         />
       );
     }
-    // case "pie": {
-    //   return <PieChart {...(props as PieChartProps<Labels, DataKey>)} />;
-    // }
-    // case "number":
-    //   const args = props as NumberChart<Labels, DataKey>;
-    //   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    //   const keys = Object.keys(args.data);
-    //   if (keys.length !== 1) {
-    //     return (
-    //       <>
-    //         <Text>{args.datakey}</Text>
-    //         {keys
-    //           .filter((key) => key.includes("Current"))
-    //           .map((key) => (
-    //             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    //             <Metric key={key}>{args.data[key as Labels]}</Metric>
-    //           ))}
-    //       </>
-    //     );
-    //   } else {
-    //     return (
-    //       <>
-    //         <Text>{args.datakey}</Text>
-    //         <Metric>
-    //           {
-    //             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    //             args.data[keys[0]! as Labels]
-    //           }
-    //         </Metric>
-    //       </>
-    //     );
-    //   }
-    // case "table":
-    //   return <Table {...(props as TableProps<Labels>)} />;
+    case "pie": {
+      return <PieChart {...(props as PieChartProps<Labels, IsBreakdown>)} />;
+    }
+    case "number":
+      return (
+        <NumberChart {...(props as NumberChartProps<Labels, IsBreakdown>)} />
+      );
+    case "table":
+      return <Table {...(props as TableProps<Labels, IsBreakdown>)} />;
   }
   throw new Error(`Unknown chart type: ${type}`);
 }

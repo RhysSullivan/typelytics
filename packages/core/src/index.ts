@@ -41,6 +41,6 @@ export type Chart<
   type: Type;
   results: Record<
     Labels,
-    IsBreakdown extends false ? ChartData : Record<string, ChartData>
+    IsBreakdown extends true ? Record<string, ChartData> : ChartData
   >;
 };

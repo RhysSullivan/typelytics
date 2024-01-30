@@ -427,12 +427,10 @@ class PostHogQuery<
     Labels extends AllLabelsOrNames<Series["name"], Events, Series>,
     Output extends Chart<
       ChartType,
-      ExecutionOptions["breakdown"] extends string
-      ? string
-      : ExecutionOptions["compare"] extends boolean
+      ExecutionOptions["compare"] extends boolean
       ? `Previous - ${Labels}` | `Current - ${Labels}`
       : Labels,
-      ExecutionOptions["breakdown"] extends true ? true : false
+      ExecutionOptions["breakdown"] extends string ? true : false
     >,
   >(options: ExecutionOptions): Promise<Output> {
 
@@ -544,36 +542,33 @@ class PostHogQuery<
           console.error(`Series ${result.action.order} not found`);
           return;
         }
-        const existing =
-          output.results[
-          applyCompareToLabel(
-            series.label ?? series.name,
-            result.compare_label
-          )
-          ];
+        const parentLabel = applyCompareToLabel(
+          series.label ?? series.name,
+          result.compare_label
+        )
+        const existing = output.results[parentLabel];
+
+        const label = result.label.replace(`${result.action.id} - `, "");
 
         if (!existing) {
           output.results[
-            applyCompareToLabel(
-              series.label ?? series.name,
-              result.compare_label
-            )
+            parentLabel
           ] = {
-            [result.label]: {
+            [label]: {
               aggregated_value: result.aggregated_value ?? result.count,
               data: result.data,
               days: result.days,
               labels: result.labels,
-              label: result.label,
+              label: `${parentLabel} - ${label}`,
             },
           };
         } else {
-          existing[result.label] = {
+          existing[label] = {
             aggregated_value: result.aggregated_value ?? result.count,
             data: result.data,
             days: result.days,
             labels: result.labels,
-            label: result.label,
+            label: `${parentLabel} - ${label}`,
           };
         }
       });
@@ -589,13 +584,14 @@ class PostHogQuery<
           console.error(`Series ${result.action.order} not found`);
           return;
         }
+        const label = applyCompareToLabel(series.label ?? series.name, result.compare_label)
         output.results[
-          applyCompareToLabel(series.label ?? series.name, result.compare_label)
+          label
         ] = {
           data: result.data,
           days: result.days,
           labels: result.labels,
-          label: result.label,
+          label: label,
           aggregated_value: result.aggregated_value ?? result.count,
         };
       });

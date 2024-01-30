@@ -15,28 +15,11 @@ export type TimeSeriesChartProps<
   categories?: Labels[];
 };
 
-function getAllEntries(
-  data: Record<string, Record<string, ChartData> | ChartData>
-) {
-  const entries = new Set<string>();
-  Object.keys(data).forEach((key) => {
-    const value = data[key];
-    if (Array.isArray(value)) {
-      entries.add(key);
-    } else if (value) {
-      Object.keys(value).forEach((key) => {
-        entries.add(key);
-      });
-    }
-  });
-  return entries;
-}
-
 export type LineChartProps<
   Labels extends string,
   IsBreakdown extends boolean,
 > = TimeSeriesChartProps<Labels, IsBreakdown> &
-  Omit<TremorLineChartProps, "data" | "categories" | "index">;
+  Omit<TremorLineChartProps, "data" | "categories" | "index" | "results">;
 
 export function isChartData(
   data: ChartData | Record<string, ChartData> | undefined
@@ -45,12 +28,14 @@ export function isChartData(
   return Array.isArray(data.data) && Array.isArray(data.days);
 }
 
-export function LineChart<
+export function toTremorTimeseriesData<
   const Labels extends string,
   const IsBreakdown extends boolean,
->(props: LineChartProps<Labels, IsBreakdown>) {
-  const { results: unformattedData } = props;
-
+  T extends Record<
+    Labels,
+    IsBreakdown extends true ? Record<string, ChartData> : ChartData
+  >,
+>(unformattedData: T) {
   // data is in the format of:
   // Record<string, chartdata | record<string, chartdata>>
   // we need to collapse it into one long array, where every key maps to a value
@@ -87,12 +72,23 @@ export function LineChart<
     return output;
   });
   const categories = Object.keys(data.at(0) ?? {}).filter((x) => x !== "label");
+  return { data, categories, labels };
+}
+
+export function LineChart<
+  const Labels extends string,
+  const IsBreakdown extends boolean,
+>(props: LineChartProps<Labels, IsBreakdown>) {
+  const { results, ...rest } = props;
+  const { data, categories } = toTremorTimeseriesData(results);
   return (
     <TremorLineChart
       className="mt-6"
       data={data}
       index={"label"}
+      enableLegendSlider={true}
       categories={[...categories]}
+      {...rest}
     />
   );
 }
@@ -101,46 +97,21 @@ export type BarChartProps<
   Labels extends string,
   IsBreakdown extends boolean,
 > = TimeSeriesChartProps<Labels, IsBreakdown> &
-  Omit<TremorBarChartProps, "data" | "categories" | "index">;
+  Omit<TremorBarChartProps, "data" | "categories" | "index" | "results">;
 
 export function BarChart<
   const Labels extends string,
   const IsBreakdown extends boolean,
 >(props: BarChartProps<Labels, IsBreakdown>) {
-  const { results: unformattedData } = props;
-  const categories = getAllEntries(unformattedData);
-  const firstValue = Object.values(unformattedData).at(0) as
-    | ChartData
-    | Record<string, ChartData>
-    | undefined;
-  const dataLength = Array.isArray(firstValue?.data)
-    ? firstValue?.data.length
-    : (Object.values(firstValue ?? {}).at(0) as ChartData | undefined)?.data
-        .length;
-
-  const data = Array.from({ length: dataLength ?? 0 }, (_, index) => {
-    const output: Record<string, number | string> = {};
-    Object.keys(unformattedData).forEach((key) => {
-      const val = unformattedData[key as keyof typeof unformattedData];
-      if (Array.isArray(val.data) && typeof val.label === "string") {
-        output[val.label] = val.data[index]!;
-      } else if (val) {
-        Object.keys(val).forEach((key) => {
-          const val = unformattedData[key as keyof typeof unformattedData];
-          if (Array.isArray(val.data) && typeof val.label === "string") {
-            output[val.label] = val.data[index]!;
-          }
-        });
-      }
-    });
-    return output;
-  });
+  const { results, ...rest } = props;
+  const { data, categories } = toTremorTimeseriesData(results);
   return (
     <TremorBarChart
       className="mt-6"
       data={data}
       index={"label"}
       categories={[...categories]}
+      {...rest}
     />
   );
 }
@@ -149,47 +120,21 @@ export type AreaChartProps<
   Labels extends string,
   IsBreakdown extends boolean,
 > = TimeSeriesChartProps<Labels, IsBreakdown> &
-  Omit<TremorAreaChartProps, "index" | "data" | "categories">;
+  Omit<TremorAreaChartProps, "index" | "data" | "categories" | "results">;
 
 export function AreaChart<
   const Labels extends string,
   const IsBreakdown extends boolean,
 >(props: AreaChartProps<Labels, IsBreakdown>) {
-  const { results: unformattedData } = props;
-  const categories = getAllEntries(unformattedData);
-  const firstValue = Object.values(unformattedData).at(0) as
-    | ChartData
-    | Record<string, ChartData>
-    | undefined;
-  const dataLength = Array.isArray(firstValue?.data)
-    ? firstValue?.data.length
-    : (Object.values(firstValue ?? {}).at(0) as ChartData | undefined)?.data
-        .length;
-
-  const data = Array.from({ length: dataLength ?? 0 }, (_, index) => {
-    const output: Record<string, number | string> = {};
-    Object.keys(unformattedData).forEach((key) => {
-      const val = unformattedData[key as keyof typeof unformattedData];
-      if (Array.isArray(val.data) && typeof val.label === "string") {
-        output[val.label] = val.data[index]!;
-      } else if (val) {
-        Object.keys(val).forEach((key) => {
-          const val = unformattedData[key as keyof typeof unformattedData];
-          if (Array.isArray(val.data) && typeof val.label === "string") {
-            output[val.label] = val.data[index]!;
-          }
-        });
-      }
-    });
-    return output;
-  });
-
+  const { results, ...rest } = props;
+  const { data, categories } = toTremorTimeseriesData(results);
   return (
     <TremorAreaChart
       className="mt-6"
       data={data}
       index={"label"}
       categories={[...categories]}
+      {...rest}
     />
   );
 }

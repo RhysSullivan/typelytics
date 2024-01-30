@@ -1,6 +1,6 @@
 import { DashboardExample } from "./dashboard";
 import { PostHog } from "@typelytics/posthog";
-import { Chart } from "@typelytics/tremor";
+import { Chart, LineChart } from "@typelytics/tremor";
 import { events } from "~/data/events";
 
 const posthog = new PostHog({
@@ -11,32 +11,20 @@ export default async function DashboardSSR() {
   const lineNormal = await posthog
     .query()
     .addSeries("$pageview", {
-      sampling: "total",
-      where: {
-        match: "AND",
-        filters: [
-          {
-            compare: "icontains",
-            property: "$browser",
-            value: "Chrome",
-          },
-        ],
-      },
+      label: "Page View (Unique)",
+      sampling: "unique_session",
+    })
+    .addSeries("Message Page View", {
+      sampling: "unique_session",
     })
     .execute({
-      compare: true,
-      type: "line",
-      breakdown: "$browser",
+      // breakdown: "$geoip_country_code",
+      // compare: true,
+      type: "number",
     });
-
-  console.log(lineNormal.results);
-
   return (
     <>
       <Chart {...lineNormal} />
-      {/* <Chart {...lineCompare} />
-      <Chart {...lineBreakdown} />
-      <Chart {...multiBreakdown} /> */}
     </>
   );
 }
