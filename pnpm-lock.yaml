@@ -115,10 +115,10 @@ importers:
         specifier: ^3.11.1
         version: 3.11.1(prop-types@15.8.1)(react-dom@18.2.0)(react@18.2.0)(tailwindcss@3.3.5)
       '@typelytics/posthog':
-        specifier: 0.1.0
+        specifier: 0.1.1
         version: link:../../packages/posthog
       '@typelytics/tremor':
-        specifier: 0.1.0
+        specifier: 0.1.1
         version: link:../../packages/tremor
       dotenv-cli:
         specifier: ^7.3.0
@@ -197,7 +197,7 @@ importers:
   packages/posthog:
     dependencies:
       '@typelytics/core':
-        specifier: 0.1.0
+        specifier: 0.1.1
         version: link:../core
     devDependencies:
       eslint:
@@ -216,7 +216,7 @@ importers:
         specifier: ^0.7.0
         version: 0.7.0
       '@typelytics/posthog':
-        specifier: 0.1.0
+        specifier: 0.1.1
         version: link:../posthog
     devDependencies:
       eslint:
@@ -235,7 +235,7 @@ importers:
         specifier: ^3.11.1
         version: 3.11.1(prop-types@15.8.1)(react-dom@18.2.0)(react@18.2.0)(tailwindcss@3.3.5)
       '@typelytics/core':
-        specifier: 0.1.0
+        specifier: 0.1.1
         version: link:../core
       react:
         specifier: 18.2.0
