@@ -1,4 +1,8 @@
-# Typelytics
+# [Typelytics](https://typelytics.rhyssul.com/)
+
+ <a href="https://discord.answeroverflow.com">
+    <img alt="Discord" src="https://img.shields.io/discord/952724385238761475?color=7389D8&label&logo=discord&logoColor=ffffff" />
+</a>
 
 Add type-safe personalized dashboard from your analytics service in minutes.
 
@@ -6,6 +10,8 @@ Compatible with:
 
 - PostHog
 - Tremor
+
+ 
 
 Credits:
 
