@@ -4,7 +4,7 @@
     <img alt="Discord" src="https://img.shields.io/discord/952724385238761475?color=7389D8&label&logo=discord&logoColor=ffffff" />
 </a>
 
-Add type-safe personalized dashboard from your analytics service in minutes.
+Add type-safe personalized dashboard from your analytics service in minutes. [Read the docs](https://typelytics.rhyssul.com/)
 
 Compatible with:
 
