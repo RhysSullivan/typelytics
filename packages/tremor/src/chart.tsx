@@ -52,7 +52,7 @@ export function Chart<
                 : Type extends NumberChartType
                   ? NumberChartProps<Labels, IsBreakdown>
                   : Type extends WorldChartType
-                    ? WorldMapProps<Labels, IsBreakdown>
+                    ? WorldMapProps<Labels>
                     : `!!!${Type} is not supported!`) & { type: Type }
 ) {
   const type = props.type;
@@ -86,7 +86,7 @@ export function Chart<
     case "table":
       return <Table {...(props as TableProps<Labels, IsBreakdown>)} />;
     case "world":
-      return <WorldMap {...(props as WorldMapProps<Labels, IsBreakdown>)} />;
+      return <WorldMap {...(props as WorldMapProps<Labels>)} />;
   }
   throw new Error(`Unknown chart type: ${type}`);
 }
