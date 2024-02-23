@@ -6,6 +6,10 @@ import { DashboardExample } from "./dashboard";
 export default async function PageViewLineChart() {
   const posthog = new PostHog({
     events,
+    executionOptions: {
+      type: "line",
+      date_from: "Last 7 days",
+    },
   });
   const pageViews = await posthog
     .query()
@@ -15,7 +19,6 @@ export default async function PageViewLineChart() {
     })
     .execute({
       type: "line",
-      date_from: "Last 7 days",
     });
 
   const questionsSolved = await posthog.query().addSeries("Solved Question", {

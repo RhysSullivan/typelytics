@@ -113,6 +113,9 @@ type PostHogConfig<Events extends _ExtendOnlyEventMap> = {
   url?: string;
   events: Events;
   globalFilters?: PostHogFilterGroup<keyof Events & string, Events>;
+  executionOptions?: PostHogExecuteOptions<
+    Events[keyof Events]["properties"][number]["name"]
+  >;
 };
 
 type TrendResult = {
@@ -436,6 +439,11 @@ class PostHogQuery<
     >,
   >(options: ExecutionOptions): Promise<Output> {
 
+    options = {
+      // TODO: Don't reassign in future
+      ...this.config.executionOptions,
+      ...options,
+    }
     const toPostHogPropertyFilter = (group: PostHogFilterGroup<string, Events>) => {
       const asArray = Array.isArray(group.filters) ? group.filters : [group.filters];
       return {
@@ -630,6 +638,7 @@ export class PostHog<const Events extends _ExtendOnlyEventMap> {
       url,
       events: opts.events,
       globalFilters: opts.globalFilters,
+      executionOptions: opts.executionOptions,
     };
   }
 
