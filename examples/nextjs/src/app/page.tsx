@@ -2,6 +2,7 @@ import { Chart } from "@typelytics/tremor";
 import { events } from "~/data/events";
 import { PostHog } from "@typelytics/posthog";
 import { DashboardExample } from "./dashboard";
+import { Client } from "./client";
 
 export default async function PageViewLineChart() {
   const posthog = new PostHog({
@@ -18,7 +19,7 @@ export default async function PageViewLineChart() {
       label: "Page View",
     })
     .execute({
-      type: "line",
+      type: "world",
     });
 
   const questionsSolved = await posthog.query().addSeries("Solved Question", {
@@ -31,5 +32,5 @@ export default async function PageViewLineChart() {
     label: "Page View",
   });
 
-  return <Chart {...pageViews} />;
+  return <Client {...pageViews} />;
 }

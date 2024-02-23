@@ -207,8 +207,8 @@ type PostHogDisplayType =
   | "ActionsBar"
   | "ActionsBarValue"
   | "ActionsLineGraphCumulative"
-  | "ActionsAreaGraph";
-// | "WorldMap";
+  | "ActionsAreaGraph"
+  | "WorldMap";
 
 type FilterLogicalOperator = "AND" | "OR";
 type PropertyFilterValue = string | number | (string | number)[] | null;
@@ -360,7 +360,7 @@ const chartTypeToPostHogType: Record<ChartType, PostHogDisplayType> = {
   number: "BoldNumber",
   pie: "ActionsPie",
   table: "ActionsTable",
-  // world: "WorldMap",
+  world: "WorldMap",
 } as const;
 
 type AllLabelsOrNames<
@@ -442,7 +442,10 @@ class PostHogQuery<
     options = {
       // TODO: Don't reassign in future
       ...this.config.executionOptions,
-      ...options,
+      ...options
+    }
+    if (options.type === 'world') {
+      options.breakdown = '$geoip_country_code'
     }
     const toPostHogPropertyFilter = (group: PostHogFilterGroup<string, Events>) => {
       const asArray = Array.isArray(group.filters) ? group.filters : [group.filters];

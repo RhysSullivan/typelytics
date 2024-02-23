@@ -6,7 +6,7 @@ export type NumberChartType = "number";
 export type PieChartType = "pie";
 export type BarTotalChartType = "bar-total";
 export type TableChartType = "table";
-// export type WorldChartType = "world";
+export type WorldChartType = "world";
 
 export type ChartType =
   | LineChartType
@@ -16,8 +16,8 @@ export type ChartType =
   | NumberChartType
   | PieChartType
   | BarTotalChartType
-  | TableChartType;
-// | WorldChartType;
+  | TableChartType
+  | WorldChartType;
 
 export type TimeSeriesChartTypes =
   | LineChartType

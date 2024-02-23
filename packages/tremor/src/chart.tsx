@@ -8,6 +8,7 @@ import {
   NumberChartType,
   PieChartType,
   TableChartType,
+  WorldChartType,
 } from "@typelytics/core";
 import {
   LineChart,
@@ -27,6 +28,7 @@ import {
   Table,
   TableProps,
 } from "./cumulative";
+import { WorldMap, WorldMapProps } from "./world-map";
 
 export function Chart<
   const Type extends ChartType,
@@ -49,7 +51,9 @@ export function Chart<
                 ? TableProps<Labels, IsBreakdown>
                 : Type extends NumberChartType
                   ? NumberChartProps<Labels, IsBreakdown>
-                  : `!!!${Type} is not supported!`) & { type: Type }
+                  : Type extends WorldChartType
+                    ? WorldMapProps<Labels, IsBreakdown>
+                    : `!!!${Type} is not supported!`) & { type: Type }
 ) {
   const type = props.type;
   switch (type) {
@@ -81,6 +85,8 @@ export function Chart<
       );
     case "table":
       return <Table {...(props as TableProps<Labels, IsBreakdown>)} />;
+    case "world":
+      return <WorldMap {...(props as WorldMapProps<Labels, IsBreakdown>)} />;
   }
   throw new Error(`Unknown chart type: ${type}`);
 }

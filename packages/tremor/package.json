@@ -1,6 +1,6 @@
 {
   "name": "@typelytics/tremor",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "author": "Rhys Sullivan",
   "license": "MIT",
   "main": "./dist/index.js",
@@ -26,7 +26,8 @@
   },
   "dependencies": {
     "@tremor/react": "^3.11.1",
-    "@typelytics/core": "0.1.2",
-    "react": "18.2.0"
+    "@typelytics/core": "0.1.3",
+    "react": "18.2.0",
+    "react-svg-worldmap": "2.0.0-alpha.16"
   }
 }
