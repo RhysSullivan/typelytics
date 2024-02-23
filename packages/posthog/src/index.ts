@@ -71,7 +71,7 @@ export type PostHogFilterGroup<
   T extends string,
   Events extends _ExtendOnlyEventMap,
 > = {
-  match: "AND" | "OR";
+  match?: "AND" | "OR";
   filters: PostHogFilter<T, Events> | PostHogFilter<T, Events>[];
 };
 
@@ -112,6 +112,7 @@ type PostHogConfig<Events extends _ExtendOnlyEventMap> = {
   projectId?: string;
   url?: string;
   events: Events;
+  globalFilters?: PostHogFilterGroup<keyof Events & string, Events>;
 };
 
 type TrendResult = {
@@ -244,7 +245,7 @@ type EventPropertyFilter<T extends string = string> = BasePropertyFilter<T> & {
 };
 
 type PropertyGroupFilterValue<T extends string = string> = {
-  type: FilterLogicalOperator;
+  type?: FilterLogicalOperator;
   values: (EventPropertyFilter<T> | PropertyGroupFilterValue<T>)[];
 };
 
@@ -382,7 +383,8 @@ class PostHogQuery<
     private readonly series: Series[],
     private readonly filterGroups: Filters[],
     private readonly config: PostHogConfig<Events>
-  ) { }
+  ) {
+  }
 
   addSeries<
     const NewEventName extends EventNames,
@@ -437,7 +439,7 @@ class PostHogQuery<
     const toPostHogPropertyFilter = (group: PostHogFilterGroup<string, Events>) => {
       const asArray = Array.isArray(group.filters) ? group.filters : [group.filters];
       return {
-        type: group.match,
+        type: group.match ?? "AND",
         values: asArray.map(
           (filter) =>
             ({
@@ -450,10 +452,15 @@ class PostHogQuery<
       };
     }
 
+
+    if (this.config.globalFilters) {
+      this.filterGroups.push(this.config.globalFilters as Filters);
+    }
     const properties: PropertyGroupFilter = {
       type: options.filterCompare ?? "AND",
       values: Array.isArray(this.filterGroups) ? this.filterGroups.map(toPostHogPropertyFilter) : [toPostHogPropertyFilter(this.filterGroups)],
     };
+
     const date_from =
       options.date_from && options.date_from in dateMapping
         ? dateMapping[options.date_from as keyof DateMapping].values[0]
@@ -622,6 +629,7 @@ export class PostHog<const Events extends _ExtendOnlyEventMap> {
       projectId,
       url,
       events: opts.events,
+      globalFilters: opts.globalFilters,
     };
   }
 

@@ -1,6 +1,6 @@
 {
   "name": "@typelytics/core",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "author": "Rhys Sullivan",
   "license": "MIT",
   "main": "./dist/index.js",

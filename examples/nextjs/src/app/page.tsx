@@ -3,25 +3,30 @@ import { events } from "~/data/events";
 import { PostHog } from "@typelytics/posthog";
 import { DashboardExample } from "./dashboard";
 
-const posthog = new PostHog({
-  events,
-});
-
-export default async function Demo() {
-  const query = await posthog
+export default async function PageViewLineChart() {
+  const posthog = new PostHog({
+    events,
+  });
+  const pageViews = await posthog
     .query()
-    .addSeries("Solved Question", {
-      sampling: "unique_session",
-    })
-    .addSeries("Asked Question", {
-      sampling: "unique_session",
+    .addSeries("Message Page View", {
+      sampling: "total",
+      label: "Page View",
     })
     .execute({
-      type: "pie",
+      type: "line",
+      date_from: "Last 7 days",
     });
-  query.results.return(
-    <>
-      <DashboardExample data={<Chart {...query} />} />
-    </>,
-  );
+
+  const questionsSolved = await posthog.query().addSeries("Solved Question", {
+    sampling: "total",
+    label: "Page View",
+  });
+
+  const questionsAsked = await posthog.query().addSeries("Asked Question", {
+    sampling: "total",
+    label: "Page View",
+  });
+
+  return <Chart {...pageViews} />;
 }
