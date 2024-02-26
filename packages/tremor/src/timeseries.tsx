@@ -70,7 +70,12 @@ export function toTremorTimeseriesData<
     });
     return output;
   });
-  const categories = Object.keys(data.at(0) ?? {}).filter((x) => x !== "label");
+  const categories = [
+    ...new Set(
+      data.flatMap((d) => Object.keys(d).filter((key) => key !== "label")),
+    ),
+  ];
+  
   return { data, categories, labels };
 }
 
