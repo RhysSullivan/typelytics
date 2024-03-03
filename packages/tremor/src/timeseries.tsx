@@ -58,7 +58,7 @@ export function toTremorTimeseriesData<
       }
       if (isChartData(val)) {
         const num = val.data[index];
-        if (num) output[val.label] = num;
+        output[val.label] = num ?? 0;
         output["label"] = labels[index]!;
       } else {
         Object.values(val).forEach((valEntry: ChartData) => {
