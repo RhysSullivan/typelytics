@@ -11,7 +11,7 @@
     "directory": "packages/posthog-generator"
   },
   "scripts": {
-    "build": "(cd ../posthog && pnpm build) && tsup",
+    "build": "tsup",
     "dev": "tsup --watch",
     "lint": "eslint . --ext .ts",
     "test:watch": "vitest",

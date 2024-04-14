@@ -4,19 +4,15 @@
   "author": "Rhys Sullivan",
   "license": "MIT",
   "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "require": "./dist/index.js",
-      "import": "./dist/index.mjs"
-    }
-  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/rhyssullivan/typelytics",
     "directory": "packages/core"
   },
   "scripts": {
-    "build": "(cd ../core && pnpm build) && tsup",
+    "build": "tsup",
     "dev": "tsup --watch",
     "lint": "eslint . --ext .ts",
     "test:watch": "vitest",

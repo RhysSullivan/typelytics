@@ -1,4 +1,3 @@
-"use client";
 import { runsOnServer } from "./server";
 import { cookies } from "next/headers";
 
