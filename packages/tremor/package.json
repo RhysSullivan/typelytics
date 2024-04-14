@@ -1,6 +1,6 @@
 {
   "name": "@typelytics/tremor",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "author": "Rhys Sullivan",
   "license": "MIT",
   "types": "./dist/index.d.ts",
