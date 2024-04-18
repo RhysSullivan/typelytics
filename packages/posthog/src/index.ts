@@ -532,7 +532,7 @@ class PostHogQuery<
       smoothing_intervals: options.smoothing_intervals,
     };
     const encodedQueryString = toParams(reqData);
-    const url = `https://app.posthog.com/api/projects/${this.config.projectId}/insights/trend/?${encodedQueryString}`;
+    const url = `${this.config.url}/insights/trend/?${encodedQueryString}`;
     const fetchResponse = await fetch(url, {
       headers: {
         Authorization: `Bearer ${this.config.apiKey}`,
@@ -633,7 +633,7 @@ export class PostHog<const Events extends _ExtendOnlyEventMap> {
     }
     const url =
       opts?.url ??
-      process.env.POSTHOG_URL ??
+      process.env.POSTHOG_ENDPOINT ??
       `https://app.posthog.com/api/projects/${projectId}/`;
     this.config = {
       apiKey,

@@ -10,7 +10,7 @@ import path from "node:path";
 
 let posthogToken = process.env.POSTHOG_API_KEY;
 let posthogProjectId = process.env.POSTHOG_PROJECT_ID;
-
+let posthogEndpoint = process.env.POSTHOG_ENDPOINT || "app.posthog.com";
 export async function generateTypeScriptFile(events: PostHogEvent[]) {
   const eventMap = events.reduce(
     (acc, event) => {
@@ -89,7 +89,7 @@ function fetchFromPosthog<T extends keyof PostHogEndpoints>(
   } = {}
 ) {
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const url = `https://app.posthog.com/api/projects/${posthogProjectId!}/${endpoint}/?${toParams(
+  const url = `https:/${posthogEndpoint}//api/projects/${posthogProjectId!}/${endpoint}/?${toParams(
     options.queryParams ?? {}
   )}`;
   return fetch(options.url ?? url, {
@@ -155,6 +155,12 @@ async function generate() {
           "No value for POSTHOG_PROJECT_ID found in environment variables. Please enter your PostHog project ID",
       })
     ).toString();
+  }
+  if (!process.env.POSTHOG_ENDPOINT) {
+    posthogEndpoint = (await text({
+      message: `No value for POSTHOG_ENDPOINT found in environment variables. Please enter your PostHog endpoint or leave blank to use ${posthogEndpoint}`,
+      defaultValue: posthogEndpoint
+    })).toString()
   }
   const data = await fetchAllEvents();
   const events: PostHogEvent[] = [];
