@@ -7,6 +7,7 @@ import { Client } from "./client";
 export default async function PageViewLineChart() {
   const posthog = new PostHog({
     events,
+    host: "eu.posthog.com",
     executionOptions: {
       type: "line",
       date_from: "Last 7 days",

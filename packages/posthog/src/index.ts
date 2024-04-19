@@ -620,7 +620,10 @@ class PostHogQuery<
 
 export class PostHog<const Events extends _ExtendOnlyEventMap> {
   private config: PostHogConfig<Events>;
-  constructor(opts: PostHogConfig<Events>) {
+  constructor(opts: Omit<PostHogConfig<Events>, "url"> & {
+    // this is ugly, i'll revisit it
+    host: string;
+  }) {
     const apiKey = opts?.apiKey ?? process.env.POSTHOG_API_KEY;
 
     if (!apiKey) {
@@ -631,10 +634,7 @@ export class PostHog<const Events extends _ExtendOnlyEventMap> {
     if (!projectId) {
       throw new Error("PostHog ProjectId is required");
     }
-    const url =
-      opts?.url ??
-      process.env.POSTHOG_ENDPOINT ??
-      `https://app.posthog.com/api/projects/${projectId}/`;
+    const url = `https://${opts?.host ?? process.env.POSTHOG_ENDPOINT ?? "app.posthog.com"}/api/projects/${projectId}/`;
     this.config = {
       apiKey,
       projectId,
