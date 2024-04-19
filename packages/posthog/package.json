@@ -12,7 +12,7 @@
     "directory": "packages/core"
   },
   "scripts": {
-    "build": "tsup",
+    "build": "(cd ../core && pnpm build) && tsup",
     "dev": "tsup --watch",
     "lint": "eslint . --ext .ts",
     "test:watch": "vitest",
